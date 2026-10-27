@@ -91,4 +91,38 @@ Scénarios manuels — validés par l'utilisateur le 2026-10-27 :
 
 ## Finition (T060–T062 : exe publié, mesures, journal)
 
-*À venir.*
+**T060 — Exe publié** (2026-10-27) :
+
+- [x] `scripts/publish.ps1` : tests verts (94/94) puis deux versions, un seul fichier chacune, aucun `.pdb`
+- [x] `publish/standard/BatNotif.exe` : 159,6 Mo, lancé sans élévation, reste actif
+- [x] `publish/compact/BatNotif.exe` : 68,8 Mo, lancé sans élévation, reste actif
+
+**T061 — Consommation au repos** (exe compressé, 60 échantillons × 10 s, 22 cœurs logiques) :
+
+| Mesure | Résultat |
+|---|---|
+| CPU moyen sur 10 min | **0,004 %** (SC-006 : < 1 % ✅) |
+| Mémoire privée, version compact | 193,4 – 197,2 Mo, stable |
+| Mémoire privée, version standard (non compressée, ~1 min) | ≈ 133 Mo |
+| Build Debug classique (référence) | ≈ 133 Mo |
+| Standard + GC non concurrent + GCConserveMemory=5 | ≈ 133 Mo (aucun gain) |
+
+- [x] SC-006 respecté (CPU). L'objectif interne « mémoire < 100 Mo » du plan était irréaliste pour WPF ; il est
+  remplacé par les valeurs de référence ci-dessus. Décision de l'utilisateur : publier les deux versions.
+
+**T062 — Journal** (`%AppData%\BatNotif\logs\batnotif-2026-10-27.log`, 125 lignes, lu avec l'autorisation de
+l'utilisateur) :
+
+| Événement | Nombre | Exemple |
+|---|---|---|
+| AppStart | 18 | `[AppStart] BatNotif 0.1.0.0 démarré` |
+| StateChanged | 16 | `[StateChanged] AlertLow → Normal à 65 % (sur batterie)` |
+| AlertPresented | 9 | `[AlertPresented] Batterie faible : Batterie à 65 % — branche le chargeur` |
+| Snooze | 1 | `[Snooze] AlertHigh mise en sourdine pour 15 min` |
+| PauseStarted / PauseEnded | 4 / 4 | `[PauseEnded] Fin de pause : reprise demandée par l'utilisateur` |
+| SettingsSaved | 23 | `[SettingsSaved] Réglages enregistrés : seuils 20 % / 80 %, volume 100 %, …` |
+| Error / AlertPresentFailed | 0 / 0 | — |
+
+- [x] Tous les événements exigés sont journalisés (FR-036). AppStop (14) < AppStart (18) : arrêts forcés des tests
+  automatiques. SettingsReset et SoundFallback absents : M11 / M12 réalisés sans déclencher ces chemins précis
+  (avertissement de la fenêtre / JSON encore lisible), non bloquant.

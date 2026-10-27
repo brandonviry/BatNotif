@@ -68,11 +68,12 @@ noté dans le journal. Ces arguments n'existent pas dans l'exe publié (Release)
 | M16 | Démarrage Windows | Cocher, fermer la session, rouvrir | App lancée en arrière-plan | FR-022 |
 | M17 | Journal | Après les scénarios, ouvrir `%AppData%\BatNotif\logs\` | Chaque transition, alerte, snooze, pause présents | FR-036 |
 
-## 4. Publier l'exe autonome
+## 4. Publier l'exe autonome (deux versions)
 
 ```powershell
 ./scripts/publish.ps1
 ```
 
-**Attendu** : logs `[1/N] … [N/N]`, puis un unique `BatNotif.exe` (win-x64, autonome) dans `publish/`, qui se
-lance sur une machine sans .NET installé et sans droits admin.
+**Attendu** : logs `[1/5] … [5/5]`, tests verts, puis deux exe autonomes win-x64, un seul fichier chacun :
+`publish/standard/BatNotif.exe` (≈ 160 Mo, non compressé, ≈ 133 Mo de RAM) et `publish/compact/BatNotif.exe`
+(≈ 69 Mo, compressé, ≈ 194 Mo de RAM). Chacun se lance sur une machine sans .NET installé et sans droits admin.

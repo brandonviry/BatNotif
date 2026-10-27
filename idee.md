@@ -212,7 +212,7 @@ Stockage : `%AppData%\BatNotif\settings.json`. Repli sur des valeurs par défaut
 | Tray | `H.NotifyIcon.Wpf` | Icône tray WPF, icônes d'état générées par le code |
 | Audio | `NAudio` | Boucle MP3/WAV sans coupure, volume ; sons par défaut générés par le code |
 | Tests | xUnit + `FakeTimeProvider` | Moteur testé avec un temps simulé |
-| Distribution | `.exe` unique autonome (win-x64) | Rien à installer, aucun droit admin |
+| Distribution | `.exe` unique autonome (win-x64), deux versions : **standard** (≈ 160 Mo disque, ≈ 133 Mo RAM, recommandée) et **compact** (≈ 69 Mo disque, ≈ 194 Mo RAM) | Rien à installer, aucun droit admin ; chacun choisit entre moins de RAM et plus petit fichier |
 | Réglages | JSON + `System.Text.Json` | Zéro dépendance, lisible |
 | Auto-start | Clé `HKCU\Software\Microsoft\Windows\CurrentVersion\Run` | Pas besoin d'admin |
 | Instance unique | `Mutex` nommé | Évite les doublons |
@@ -245,27 +245,42 @@ BatNotif est **développé de zéro dans ce dépôt**, de façon totalement ind�
 
 ## 11. Décisions à trancher
 
-1. **Nom définitif** : BatNotif, BatteryGuard, ChargeGuard, autre ?
+1. ~~**Nom définitif** : BatNotif, BatteryGuard, ChargeGuard, autre ?~~ → **Décidé pour le MVP : BatNotif** (renommage possible plus tard).
 2. ~~**Notification au démarrage** si déjà en zone d'alerte : silencieuse ou immédiate ?~~ → **Décidé : immédiate**, selon la règle normale secteur × niveau (branché à 90 % → alerte ; débranché à 90 % → rien).
 3. ~~**Répétition** : infinie par défaut, ou plafonnée avec un mode « insistant » activable ?~~ → **Décidé : infinie, non plafonnable.**
 4. ~~**Son** : joué une fois par rappel, ou en boucle jusqu'à interaction ?~~ → **Décidé : en boucle continue jusqu'à correction** (snooze et pause seuls le coupent temporairement). Plus d'intervalle de rappel ni de bouton « Vu ».
-5. **Pause** : bouton unique ou choix de durée (15 min / 1 h / indéfiniment) ?
+5. ~~**Pause** : bouton unique ou choix de durée (15 min / 1 h / indéfiniment) ?~~ → **Décidé : choix de durée 15 min / 1 h / indéfinie**, depuis la fenêtre et le menu de l'icône, plus un **Snooze 15 min** sur la notification.
 6. ~~**Mode plein écran / jeu** : masquer la notification ou l'afficher quand même ?~~ → **Décidé : l'alerte est renforcée et interrompt la session** (passe devant le jeu, plus grande, avec son). L'option « silencieux en plein écran » est supprimée.
-7. **Multi-utilisateurs / multi-batteries** : hors périmètre ?
-8. ~~**Distribution** : `.exe` single-file auto-suffisant, ou installeur (MSI / Inno Setup) ?~~ → **Décidé : `.exe` unique autonome** (~60–80 Mo, rien à installer, aucun droit admin), sans installeur.
+7. ~~**Multi-utilisateurs / multi-batteries** : hors périmètre ?~~ → **Décidé : hors périmètre** (un utilisateur, une batterie).
+8. ~~**Distribution** : `.exe` single-file auto-suffisant, ou installeur (MSI / Inno Setup) ?~~ → **Décidé : `.exe` unique autonome**, sans installeur ni droit admin, en **deux versions** : *standard* (non compressée, ≈ 160 Mo disque / ≈ 133 Mo RAM, recommandée car l'app tourne en permanence) et *compact* (compressée, ≈ 69 Mo disque / ≈ 194 Mo RAM, pour ceux qui veulent le plus petit fichier).
 
 ---
 
-## 12. Roadmap suggérée
+## 12. Roadmap
 
-| Étape | Contenu | Critère de fin |
+La roadmap initiale a été réalisée via Spec Kit (`specs/001-batnotif-mvp/`), découpée par user story plutôt que par couche technique.
+
+| Étape initiale | Réalisée dans | État |
 |---|---|---|
-| **1. Squelette** | Projet WPF, tray, mutex, lecture batterie + secteur, fenêtre minimale | L'état batterie s'affiche en temps réel |
-| **2. Moteur** | Machine à états, hystérésis, alerte continue, snooze, pause | Alertes correctes sur batterie simulée |
-| **3. Notification** | Fenêtre custom, son, snooze, position multi-écran | Alerte visible et audible, sans vol de focus |
-| **4. Réglages** | GUI complète, persistance JSON, autostart, test audio | Tout survit à un redémarrage |
-| **5. Finition** | Alerte renforcée en plein écran, icône d'état, packaging single-file, tests veille | `exe` autonome prêt à l'emploi |
+| **1. Squelette** (projet, tray, mutex, lecture batterie) | Phases 1–2 (fondations) | ✅ |
+| **2. Moteur** (machine à états, hystérésis, alerte continue, snooze, pause) | US1 + US3, testé sur batterie et horloge simulées (94 tests) | ✅ |
+| **3. Notification** (fenêtre maison, son, snooze, multi-écran) | US1 + US3 | ✅ validée manuellement |
+| **4. Réglages** (fenêtre, JSON, autostart, test audio) | US2 | ✅ validée manuellement |
+| **5. Finition** (plein écran, icône d'état, single-file, veille) | US1 (plein écran, veille), US4 (icône d'état, raccourci), Finition (exe autonome) | ✅ |
+
+### Écarts de réalisation par rapport à l'idée initiale
+
+- **Pas de bouton « Vu »** ni d'intervalle de rappel : l'alerte est continue (§5.5, §11.3, §11.4).
+- **Notification ≈ 440 × 120** (au lieu d'une carte plus petite) pour loger le bouton « Snooze 15 min ».
+- **Sons et icônes générés par le code** : aucun fichier audio ou `.ico` à fournir ; les sons choisis par l'utilisateur restent prioritaires.
+- **Bouton « Intégré »** dans les réglages pour revenir au son par défaut.
+- **Arguments Debug `--low` / `--high`** pour simuler une alerte pendant le développement (absents de l'exe publié).
+- **Deux versions de l'exe** (standard / compact) au lieu d'une seule, après mesure de la mémoire : CPU au repos ≈ 0,004 %, RAM ≈ 133 Mo (standard) ou ≈ 194 Mo (compact).
+
+### Pistes après le MVP (§4.3)
+
+Statistiques / historique, courbe de santé, notification vocale, coupure matérielle de la charge, thèmes : chacune passera par une mise à jour de ce document puis une nouvelle spec (constitution, principe VI).
 
 ---
 
-*Brouillon initial — à compléter avec les réponses aux décisions du §11.*
+*Cahier des charges à jour au 2026-10-27 : MVP implémenté et validé (spec 001-batnotif-mvp).*

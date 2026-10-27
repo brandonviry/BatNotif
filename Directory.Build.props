@@ -11,4 +11,9 @@
     <Copyright>BatNotif</Copyright>
   </PropertyGroup>
 
+  <!-- Release : symboles intégrés aux DLL (pas de .pdb livré, numéros de ligne conservés dans le journal). -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+
 </Project>

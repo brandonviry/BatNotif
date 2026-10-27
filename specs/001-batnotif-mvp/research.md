@@ -176,15 +176,25 @@ actuel) ; horloge maison (`TimeProvider` existe déjà).
 
 ## R11. Distribution (`idee.md` §11.8)
 
-**Décision** : **`.exe` unique autonome** (`win-x64`, self-contained, single-file, compression activée), sans
-installeur. Script `scripts/publish.ps1` avec étapes numérotées.
+**Décision** : **`.exe` unique autonome** (`win-x64`, self-contained, single-file), sans installeur, publié en
+**deux versions** par `scripts/publish.ps1` (étapes numérotées) :
+
+| Version | Compression | Disque | Mémoire privée au repos | Pour qui |
+|---|---|---|---|---|
+| **standard** (`publish/standard/`) | non | 159,6 Mo | ≈ 133 Mo | Recommandée : l'app tourne en permanence, la RAM compte plus que le disque |
+| **compact** (`publish/compact/`) | oui | 68,8 Mo | ≈ 194 Mo | Le plus petit fichier possible |
 
 **Pourquoi** : l'utilisateur copie un seul fichier et le lance, sans installer le runtime .NET ni avoir de
 droits admin. Le démarrage auto passe par `HKCU` (R8), un installeur n'apporte donc rien au MVP.
 
-**Compromis** : l'exe autonome pèse environ 60–80 Mo sur disque (runtime inclus, compressé). L'alternative
-« framework-dependent » ferait ~2 Mo mais exigerait d'installer le .NET Desktop Runtime 10. Le poids sur disque
-n'affecte pas la consommation au repos (SC-006).
+**Mesures (T061, 2026-10-27)** : CPU moyen au repos **0,004 %** sur 10 min (SC-006 respecté). La compression de
+l'exe unique décompresse toutes les DLL en mémoire au lancement : **+60 Mo de RAM** environ. Sans compression,
+la consommation est identique à un build classique (≈ 133 Mo, socle runtime + WPF + bibliothèques natives) ;
+les réglages du ramasse-miettes (GC non concurrent, `GCConserveMemory`) n'y changent rien (133,1 Mo).
+L'objectif interne « < 100 Mo » du plan initial était irréaliste pour WPF ; il est remplacé par ces valeurs
+de référence. Choix des deux versions fait par l'utilisateur.
+
+L'alternative « framework-dependent » ferait ~2 Mo mais exigerait d'installer le .NET Desktop Runtime 10.
 
 **Alternatives écartées** : installeur MSI / Inno Setup (complexité inutile pour le MVP) ; framework-dependent
 (dépendance à installer pour l'utilisateur final).

@@ -15,7 +15,8 @@ Approche technique (détail et justifications dans [research.md](research.md)) :
 choisi après réévaluation neutre face à WinUI 3 et WinForms. La logique d'alerte vit dans un projet
 **`BatNotif.Core`** sans dépendance Windows, testé avec un temps simulé ; l'application WPF ne fait que
 brancher les sources système (WinRT `PowerManager`), l'affichage, l'audio (NAudio) et le tray
-(H.NotifyIcon.Wpf). Distribution en **`.exe` unique autonome**, sans installeur ni droits admin.
+(H.NotifyIcon.Wpf). Distribution en **`.exe` unique autonome**, sans installeur ni droits admin, en deux versions :
+**standard** (non compressée, moins de RAM, recommandée) et **compact** (compressée, plus petit fichier).
 
 ## Technical Context
 
@@ -37,7 +38,8 @@ brancher les sources système (WinRT `PowerManager`), l'affichage, l'audio (NAud
 correction (SC-007)
 
 **Constraints**: CPU moyen < 1 % au repos (SC-006), aucune élévation de privilèges, aucun vol de focus hors plein
-écran, fonctionne hors ligne, mémoire au repos visée < 100 Mo
+écran, fonctionne hors ligne. Mémoire au repos mesurée (T061) : ≈ 133 Mo (version standard) / ≈ 194 Mo
+(version compact) — l'objectif initial « < 100 Mo » s'est révélé irréaliste pour WPF (research R11)
 
 **Scale/Scope**: 1 utilisateur, 1 batterie ; 3 fenêtres (principale, notification normale / renforcée), 1 icône
 tray, 38 exigences fonctionnelles
@@ -56,7 +58,7 @@ Constitution **v1.2.0** (évaluation initiale faite sur v1.1.0 ; écart techniqu
 | **IV. Moteur testable** | `BatNotif.Core` en `net10.0` (aucune référence Windows possible), `TimeProvider` + `FakeTimeProvider`, tests xUnit de chaque état / transition / cas limite | ✅ |
 | **V. Robustesse & observabilité** | Cas limites du §9 couverts (aucune batterie, son manquant, veille, multi-écrans, 100 % branché), journal fichier `%AppData%\BatNotif\logs`, script de publication avec étapes `[n/N]` | ✅ |
 | **VI. Simplicité** | 2 dépendances applicatives justifiées ([research.md](research.md), tableau final), pas d'installeur, sons et icônes générés par le code, logger maison minimal | ✅ |
-| **Contraintes techniques** | WPF, .NET 10, `PowerManager`, H.NotifyIcon, NAudio, System.Text.Json, HKCU, xUnit, `.exe` autonome : conformes à la constitution **v1.2.0** (amendée suite à ce plan : .NET 8 → .NET 10, `Battery` → `PowerManager`, R2/R3) | ✅ |
+| **Contraintes techniques** | WPF, .NET 10, `PowerManager`, H.NotifyIcon, NAudio, System.Text.Json, HKCU, xUnit, `.exe` autonome : conformes à la constitution **v1.3.0** (amendée : .NET 8 → .NET 10, `Battery` → `PowerManager` en v1.2.0 ; exe en deux versions standard / compact en v1.3.0) | ✅ |
 | **Indépendance** (`idee.md` §10) | Rien n'est repris d'un autre projet ; tout est créé dans ce dépôt | ✅ |
 | **Workflow** | Plan soumis à validation avant `/speckit-tasks` ; `idee.md` §8 / §11.8 et README à mettre à jour | ✅ |
 

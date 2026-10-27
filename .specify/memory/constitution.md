@@ -1,6 +1,20 @@
 <!--
 Sync Impact Report
 ==================
+Version change: 1.2.0 → 1.3.0
+Bump rationale: MINOR — « Contraintes techniques / Distribution » étendue à deux versions de l'exe,
+décidée par l'utilisateur après la mesure T061 (compressé : 69 Mo disque / 194 Mo RAM ; non compressé :
+160 Mo disque / 133 Mo RAM). Aucun principe modifié.
+
+Modified sections :
+- Contraintes techniques : distribution = exe autonome en deux versions, standard (non compressée,
+  recommandée) et compact (compressée)
+
+Added sections : aucune
+Removed sections : aucune
+Templates : aucun impact.
+Deferred TODOs : aucun.
+
 Version change: 1.1.0 → 1.2.0
 Bump rationale: MINOR — section « Contraintes techniques » révisée suite au plan
 001-batnotif-mvp (research.md R1–R11), validé par l'utilisateur. Aucun principe modifié.
@@ -185,8 +199,9 @@ après coup, sans débogueur.
 - **Notification** : fenêtre WPF maison sans bordure, pas de toast Windows.
 - **Tests** : **xUnit** dans un projet de tests séparé, temps simulé via `TimeProvider` /
   `FakeTimeProvider`.
-- **Distribution** : `.exe` unique autonome (win-x64, self-contained, single-file, compressé),
-  sans installeur ni droits admin.
+- **Distribution** : `.exe` unique autonome (win-x64, self-contained, single-file), sans installeur
+  ni droits admin, publié en **deux versions** au choix de l'utilisateur : **standard** (non
+  compressée, moins de RAM, recommandée) et **compact** (compressée, plus petit fichier, plus de RAM).
 - Technos web embarquées (Electron, Tauri…) exclues : trop lourdes pour un utilitaire permanent.
 - Le projet est **indépendant** : développé de zéro dans ce dépôt, sans reprendre de code,
   d'asset ni de choix technique d'un autre projet (`idee.md` §10). La stack ci-dessus a été
@@ -225,4 +240,4 @@ après coup, sans débogueur.
 - `CLAUDE.md` contient les consignes de travail au quotidien (logs, workflow, fichiers de
   référence).
 
-**Version**: 1.2.0 | **Ratified**: 2026-10-27 | **Last Amended**: 2026-10-27
+**Version**: 1.3.0 | **Ratified**: 2026-10-27 | **Last Amended**: 2026-10-27
