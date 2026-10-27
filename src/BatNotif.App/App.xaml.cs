@@ -30,6 +30,7 @@ public partial class App : Application
     private TrayIconService? _tray;
     private SettingsStore? _settingsStore;
     private MainWindow? _mainWindow;
+    private GlobalHotkey? _hotkey;
 
     /// <summary>Chemin des réglages : <c>%AppData%\BatNotif\settings.json</c> (contracts/settings-schema.md).</summary>
     public static string SettingsPath { get; } = System.IO.Path.Combine(
@@ -76,8 +77,28 @@ public partial class App : Application
         };
     }
 
-    /// <summary>Affiche la fenêtre principale au premier plan (menu « Ouvrir », second lancement).</summary>
+    /// <summary>Affiche la fenêtre principale au premier plan (menu « Ouvrir », raccourci, second lancement).</summary>
     public void ShowMainWindow() => _mainWindow?.ShowAndActivate();
+
+    /// <summary>Clic gauche sur l'icône : affiche la fenêtre si elle est masquée, la masque sinon (FR-029).</summary>
+    public void ToggleMainWindow()
+    {
+        if (_mainWindow is { IsVisible: true, WindowState: not WindowState.Minimized })
+        {
+            _mainWindow.Hide();
+        }
+        else
+        {
+            ShowMainWindow();
+        }
+    }
+
+    /// <summary>« Quitter » : arrêt complet, toutes les ressources sont libérées dans <see cref="OnExit"/>.</summary>
+    private void Quit()
+    {
+        Log.Write(Time, LogEventKind.Info, "Arrêt demandé depuis le menu de l'icône");
+        Shutdown(0);
+    }
 
     protected override void OnExit(ExitEventArgs e)
     {
@@ -87,6 +108,7 @@ public partial class App : Application
             _mainWindow.Close();
         }
 
+        _hotkey?.Dispose();
         _presenter?.Dispose();
         _engine?.Dispose();
         _sleep?.Dispose();
@@ -157,18 +179,29 @@ public partial class App : Application
         CriticalErrorReported += (_, message) => viewModel.AddWarning(message);
         _mainWindow = new MainWindow(viewModel); // Créée masquée ; affichée par « Ouvrir ».
 
-        _tray = new TrayIconService(new TrayActions(
-            Open: ShowMainWindow,
-            Pause15: () => _engine.Pause(PauseState.For(Time, TimeSpan.FromMinutes(15))),
-            Pause60: () => _engine.Pause(PauseState.For(Time, TimeSpan.FromHours(1))),
-            PauseIndefinite: () => _engine.Pause(PauseState.Indefinite),
-            Resume: _engine.Resume,
-            Quit: () => Shutdown(0)));
-        _tray.SetPaused(_engine.CurrentPause.Kind != PauseKind.None);
-        _engine.OutputChanged += (_, output) => Dispatcher.BeginInvoke(() => _tray?.SetPaused(output.IsPaused));
+        // Raccourci global pour rouvrir la fenêtre quand l'icône est cachée par Windows 11 (FR-031).
+        _hotkey = new GlobalHotkey();
+        _hotkey.Pressed += (_, _) => ShowMainWindow();
+        if (!_hotkey.IsRegistered)
+        {
+            Log.Write(Time, LogEventKind.HotkeyUnavailable, $"Raccourci {GlobalHotkey.Label} déjà utilisé par une autre application");
+            viewModel.AddWarning($"Le raccourci {GlobalHotkey.Label} est déjà utilisé par une autre application : utilise l'icône pour ouvrir BatNotif.");
+        }
 
-        // Évaluation immédiate au démarrage (FR-004).
+        // Évaluation immédiate au démarrage (FR-004), avant de dessiner l'icône pour qu'elle montre l'état réel.
         _engine.Evaluate();
+
+        _tray = new TrayIconService(
+            new TrayActions(
+                ToggleWindow: ToggleMainWindow,
+                Open: ShowMainWindow,
+                Pause15: () => _engine.Pause(PauseState.For(Time, TimeSpan.FromMinutes(15))),
+                Pause60: () => _engine.Pause(PauseState.For(Time, TimeSpan.FromHours(1))),
+                PauseIndefinite: () => _engine.Pause(PauseState.Indefinite),
+                Resume: _engine.Resume,
+                Quit: Quit),
+            _engine.Output);
+        _engine.OutputChanged += (_, output) => Dispatcher.BeginInvoke(() => _tray?.Update(output));
     }
 
 #if DEBUG

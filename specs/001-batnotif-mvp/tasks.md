@@ -175,11 +175,11 @@ ferme tout (l'instance unique est déjà en place depuis la phase 2).
 
 ### Implementation for User Story 4
 
-- [ ] T054 [P] [US4] Implémenter `TrayIconFactory` : icônes générées par le code (pastille de couleur + niveau) pour les états normal, alerte, pause et aucune batterie (FR-028), dans `src/BatNotif.App/Tray/TrayIconFactory.cs`
-- [ ] T055 [US4] Compléter `TrayIconService` : icône et info-bulle `BatNotif — 74 % · branché · normal` mises à jour sur `OutputChanged` ; clic gauche → affiche / masque `MainWindow` ; menu final Ouvrir / Pause… / Reprendre / Quitter (FR-029), dans `src/BatNotif.App/Tray/TrayIconService.cs`
-- [ ] T056 [P] [US4] Implémenter `GlobalHotkey` (`RegisterHotKey` `Ctrl+Alt+B` sur une `HwndSource` de messages dédiée ; échec → `HotkeyUnavailable` journalisé et avertissement dans la fenêtre principale) (FR-031), dans `src/BatNotif.App/Platform/GlobalHotkey.cs`
-- [ ] T057 [US4] Câbler dans `App.OnStartup` : enregistrement de `GlobalHotkey` → afficher `MainWindow`, « Quitter » → arrêt complet (moteur, audio, tray, hotkey, mutex libérés, `AppStop` journalisé), dans `src/BatNotif.App/App.xaml.cs`
-- [ ] T058 [US4] Vérifier US4 : build + tests (logs complets), exécuter M13, M14 du quickstart et consigner les résultats dans `specs/001-batnotif-mvp/checklists/manual-validation.md` ; mettre à jour l'état d'avancement de `README.md`
+- [X] T054 [P] [US4] Implémenter `TrayIconFactory` : icônes générées par le code (pastille de couleur + niveau) pour les états normal, alerte, pause et aucune batterie (FR-028), dans `src/BatNotif.App/Tray/TrayIconFactory.cs`
+- [X] T055 [US4] Compléter `TrayIconService` : icône et info-bulle `BatNotif — 74 % · branché · normal` mises à jour sur `OutputChanged` ; clic gauche → affiche / masque `MainWindow` ; menu final Ouvrir / Pause… / Reprendre / Quitter (FR-029), dans `src/BatNotif.App/Tray/TrayIconService.cs`
+- [X] T056 [P] [US4] Implémenter `GlobalHotkey` (`RegisterHotKey` `Ctrl+Alt+B` sur une `HwndSource` de messages dédiée ; échec → `HotkeyUnavailable` journalisé et avertissement dans la fenêtre principale) (FR-031), dans `src/BatNotif.App/Platform/GlobalHotkey.cs`
+- [X] T057 [US4] Câbler dans `App.OnStartup` : enregistrement de `GlobalHotkey` → afficher `MainWindow`, « Quitter » → arrêt complet (moteur, audio, tray, hotkey, mutex libérés, `AppStop` journalisé), dans `src/BatNotif.App/App.xaml.cs`
+- [X] T058 [US4] Vérifier US4 : build + tests (logs complets), exécuter M13, M14 du quickstart et consigner les résultats dans `specs/001-batnotif-mvp/checklists/manual-validation.md` ; mettre à jour l'état d'avancement de `README.md`
 
 **Checkpoint** : toutes les user stories fonctionnent.
 

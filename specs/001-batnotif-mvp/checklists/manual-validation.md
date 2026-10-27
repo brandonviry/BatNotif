@@ -68,10 +68,27 @@ Scénarios manuels — validés par l'utilisateur le 2026-10-27 :
 
 - [x] US3 validée manuellement (T053) → **première version livrable** (US1 + US2 + US3)
 
-## US4 — Tray complet (T059)
+## US4 — Tray complet (T058)
 
-*À venir.*
+Contrôles automatiques (2026-10-27) :
 
-## Finition (T061–T063)
+- [x] Build solution sans warning ni erreur ; 94 tests unitaires verts
+- [x] Démarrage : le processus reste actif
+- [x] `Ctrl+Alt+B` détenu par BatNotif pendant l'exécution (un second enregistrement échoue) et libéré à l'arrêt
+
+Scénarios manuels — validés par l'utilisateur le 2026-10-27 :
+
+| # | Scénario | Étapes | Résultat | Observations |
+|---|---|---|---|---|
+| M13a | Icône d'état | Observer la pastille : verte + niveau (normal), rouge / ambre (alerte), grise (pause) ; survoler → info-bulle « BatNotif — 74 % · branché · normal » | ✅ OK | |
+| M13b | Clic gauche | Clic gauche sur la pastille → fenêtre affichée ; nouveau clic gauche → masquée | ✅ OK | |
+| M13c | Fermer ≠ quitter | Fermer la fenêtre (✕) → l'icône reste, les alertes continuent | ✅ OK | |
+| M13d | Raccourci | Fenêtre masquée, depuis une autre application : `Ctrl+Alt+B` → fenêtre au premier plan | ✅ OK | |
+| M13e | Quitter | Clic droit → Quitter → l'icône disparaît, plus aucun processus BatNotif | ✅ OK | |
+| M14 | Instance unique | Lancer l'app deux fois → une seule icône, la fenêtre existante s'affiche | ✅ OK | |
+
+- [x] US4 validée manuellement (T058)
+
+## Finition (T060–T062 : exe publié, mesures, journal)
 
 *À venir.*

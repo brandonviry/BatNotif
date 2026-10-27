@@ -11,7 +11,7 @@ L'alerte ne s'arrête pas tant que la situation n'est pas corrigée : notificati
 
 ## État d'avancement
 
-🟢 **Première version livrable atteinte** (53 tâches sur 65) : alertes continues (y compris l'alerte renforcée en plein écran), fenêtre de réglages (seuils, sons, volume, démarrage avec Windows) enregistrés dans `%AppData%\BatNotif\settings.json`, **snooze 15 min et pause 15 min / 1 h / indéfinie** (persistée). Tout est validé manuellement. Restent : icônes d'état et raccourci global (US4), puis l'exe autonome (finition).
+🟢 **Première version livrable atteinte** (58 tâches sur 65) : alertes continues (y compris l'alerte renforcée en plein écran), fenêtre de réglages (seuils, sons, volume, démarrage avec Windows) enregistrés dans `%AppData%\BatNotif\settings.json`, **snooze 15 min et pause 15 min / 1 h / indéfinie** (persistée). Icône d'état, clic gauche et raccourci `Ctrl+Alt+B` inclus. Toutes les user stories sont validées manuellement ; reste la finition (exe autonome, mesures, docs).
 
 - [x] Idée et cahier des charges rédigés → [`idee.md`](idee.md)
 - [x] Spec Kit installé (développement piloté par les specs)
@@ -24,7 +24,8 @@ L'alerte ne s'arrête pas tant que la situation n'est pas corrigée : notificati
   - [x] US1 : alertes continues (jalon interne) — validée manuellement (M1, M2, M3, M7, M8, M15)
   - [x] US2 : réglages — validée manuellement (M9, M10, M11, M12, M16, SC-005)
   - [x] US3 : snooze / pause → **première version livrable** — validée manuellement (M4, M5, M6)
-  - [ ] US4 : tray complet, raccourci · Finition : exe autonome
+  - [x] US4 : tray complet, raccourci — validée manuellement (M13, M14)
+  - [ ] Finition : exe autonome, mesures, docs
 
 ---
 
@@ -68,7 +69,7 @@ dotnet build BatNotif.sln      # compile les 3 projets
 dotnet test BatNotif.sln       # lance les tests du moteur
 ```
 
-Lancer l'application (une icône verte « B » apparaît dans la zone de notification ; clic droit → **Ouvrir** pour les réglages, **Pause 15 min / 1 h / indéfinie** ou **Reprendre**, **Quitter** pour arrêter) :
+Lancer l'application. Une pastille apparaît dans la zone de notification : sa couleur indique l'état (vert normal, rouge alerte basse, ambre alerte haute, gris pause) et elle affiche le niveau. **Clic gauche** : afficher / masquer la fenêtre. **Clic droit** : Ouvrir, Pause 15 min / 1 h / indéfinie ou Reprendre, Quitter. **`Ctrl+Alt+B`** rouvre la fenêtre depuis n'importe où (utile quand Windows 11 cache l'icône dans le tiroir `^`).
 
 ```powershell
 dotnet run --project src/BatNotif.App
