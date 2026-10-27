@@ -151,6 +151,9 @@ pour la rouvrir ; lancer l'application deux fois et vérifier qu'une seule icôn
 
 - **Chargeur branché mais batterie qui baisse** (chargeur trop faible, USB) : traité comme « sur batterie » pour
   l'alerte basse ; l'alerte basse se déclenche si le niveau atteint le seuil bas.
+- **Chargeur trop faible avec batterie haute** (ex. 85 %, branché mais en décharge) : l'alerte haute se déclenche
+  quand même (règle secteur × niveau). C'est sans danger et volontairement conservé : débrancher un chargeur
+  inefficace ne coûte rien.
 - **Micro-coupures du secteur** : un changement branché/débranché qui dure moins de 2 s est ignoré.
 - **Oscillation autour d'un seuil** : l'alerte ne se termine qu'au franchissement du seuil de fin (seuil bas + 2 %,
   seuil haut − 2 %) et ne redémarre qu'au franchissement du seuil de déclenchement.

@@ -192,7 +192,7 @@ L'utilisateur garde le contrôle :
   "lowSoundPath": "%USERPROFILE%\\Music\\low.mp3",
   "highSoundPath": "%USERPROFILE%\\Music\\full.mp3",
   "volume": 0.8,
-  "startWithWindows": true,
+  "startWithWindows": false,
   "pausedUntil": null,
   "pauseIndefinite": false
 }

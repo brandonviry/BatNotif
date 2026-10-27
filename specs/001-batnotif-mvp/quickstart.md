@@ -34,11 +34,23 @@ dotnet run --project src/BatNotif.App -c Debug
 
 **Attendu** : icône dans la zone de notification ; fenêtre principale avec le niveau réel et l'état du secteur.
 
+### Simuler une alerte sans modifier le code (build Debug uniquement)
+
+```powershell
+# Alerte haute : chargeur branché, seuil haut juste sous le niveau actuel (ex. niveau 64 % → --high 63)
+dotnet run --project src/BatNotif.App -c Debug -- --high 63
+# Alerte basse : sur batterie, seuil bas juste au-dessus du niveau actuel (ex. niveau 64 % → --low 65)
+dotnet run --project src/BatNotif.App -c Debug -- --low 65
+```
+
+Les seuils passés en argument ne valent que pour la session, ne sont **pas** enregistrés, et le remplacement est
+noté dans le journal. Ces arguments n'existent pas dans l'exe publié (Release).
+
 ## 3. Scénarios manuels
 
 | # | Scénario | Étapes | Résultat attendu | Spec |
 |---|---|---|---|---|
-| M1 | Alerte haute | Régler seuil haut = niveau actuel − 1, chargeur branché, Enregistrer | Notification haut-droit + son haut en boucle, sans perte de focus dans un éditeur de texte | US1, FR-007/011/015 |
+| M1 | Alerte haute | Chargeur branché, lancer avec `--high <niveau − 1>` (ou régler le seuil haut dans la fenêtre une fois US2 faite) | Notification haut-droit + son haut en boucle, sans perte de focus dans un éditeur de texte | US1, FR-007/011/015 |
 | M2 | Fin d'alerte | Pendant M1, débrancher | Notification disparaît, son coupé en ≤ 10 s | US1, FR-008, SC-007 |
 | M3 | Alerte continue | Laisser M1 tourner 3 min | Notification toujours là, son sans interruption | FR-010 |
 | M4 | Snooze | Cliquer « Snooze 15 min » | Silence ; retour au bout de 15 min si toujours branché | US3, FR-027 |
