@@ -1,4 +1,5 @@
 using BatNotif.Core.Alerts;
+using BatNotif.Core.Settings;
 using BatNotif.Core.Tests.Fakes;
 using Microsoft.Extensions.Time.Testing;
 
@@ -22,14 +23,18 @@ public abstract class EngineTestBase : IDisposable
     protected List<AlertOutput> Outputs { get; } = [];
 
     /// <summary>Crée le moteur sur un état initial puis lance l'évaluation de démarrage.</summary>
-    protected AlertEngine Start(int level, bool ac, int low = 20, int high = 80, bool hasBattery = true)
+    protected AlertEngine Start(
+        int level, bool ac, int low = 20, int high = 80, bool hasBattery = true, PauseState? pause = null)
     {
         Battery = new FakeBatterySource(Time, level, ac, hasBattery);
-        _engine = new AlertEngine(Battery, Time, Log, low, high);
+        _engine = new AlertEngine(Battery, Time, Log, low, high, pause);
         _engine.OutputChanged += (_, output) => Outputs.Add(output);
+        _engine.PauseChanged += (_, state) => PauseChanges.Add(state);
         _engine.Evaluate();
         return _engine;
     }
+
+    protected List<PauseState> PauseChanges { get; } = [];
 
     /// <summary>Change le secteur puis laisse passer le debounce.</summary>
     protected void SetAcAndSettle(bool ac)

@@ -28,7 +28,7 @@ public sealed class AlertPresenter : IDisposable
     private readonly TimeProvider _time;
     private readonly Dispatcher _dispatcher;
     private readonly DispatcherTimer _checkTimer;
-    private readonly NotificationViewModel _viewModel = new();
+    private readonly NotificationViewModel _viewModel;
     private NotificationWindow? _window;
     private AlertSound? _presented;
 
@@ -46,6 +46,7 @@ public sealed class AlertPresenter : IDisposable
         _log = log;
         _time = time;
         _dispatcher = dispatcher;
+        _viewModel = new NotificationViewModel { SnoozeCommand = new RelayCommand(_engine.Snooze) };
         _checkTimer = new DispatcherTimer(CheckInterval, DispatcherPriority.Normal, (_, _) => CheckPresentation(), dispatcher);
         _checkTimer.Stop();
         _engine.OutputChanged += OnOutputChanged;

@@ -128,7 +128,9 @@ public partial class App : Application
                 ? $"Batterie détectée : {initial.Level} %, {(initial.AcPresent ? "secteur présent" : "sur batterie")}, seuils {low} % / {high} %"
                 : "Aucune batterie détectée : aucune alerte ne sera émise");
 
-        _engine = new AlertEngine(_battery, Time, Log, low, high);
+        // La pause enregistrée est restaurée (FR-026) et chaque changement de pause est persisté.
+        _engine = new AlertEngine(_battery, Time, Log, low, high, settings.Pause);
+        _engine.PauseChanged += (_, pause) => Dispatcher.BeginInvoke(() => PersistPause(pause));
         _player = new LoopingAlarmPlayer(Log, Time) { Volume = (float)settings.Volume };
         _presenter = new AlertPresenter(
             _engine,
@@ -155,7 +157,15 @@ public partial class App : Application
         CriticalErrorReported += (_, message) => viewModel.AddWarning(message);
         _mainWindow = new MainWindow(viewModel); // Créée masquée ; affichée par « Ouvrir ».
 
-        _tray = new TrayIconService(open: ShowMainWindow, quit: () => Shutdown(0));
+        _tray = new TrayIconService(new TrayActions(
+            Open: ShowMainWindow,
+            Pause15: () => _engine.Pause(PauseState.For(Time, TimeSpan.FromMinutes(15))),
+            Pause60: () => _engine.Pause(PauseState.For(Time, TimeSpan.FromHours(1))),
+            PauseIndefinite: () => _engine.Pause(PauseState.Indefinite),
+            Resume: _engine.Resume,
+            Quit: () => Shutdown(0)));
+        _tray.SetPaused(_engine.CurrentPause.Kind != PauseKind.None);
+        _engine.OutputChanged += (_, output) => Dispatcher.BeginInvoke(() => _tray?.SetPaused(output.IsPaused));
 
         // Évaluation immédiate au démarrage (FR-004).
         _engine.Evaluate();
@@ -195,6 +205,20 @@ public partial class App : Application
         return (low, high);
     }
 #endif
+
+    /// <summary>Enregistre la pause dans settings.json pour qu'elle survive au redémarrage (FR-026).</summary>
+    private void PersistPause(PauseState pause)
+    {
+        CurrentSettings = CurrentSettings with { Pause = pause };
+        try
+        {
+            _settingsStore?.Save(CurrentSettings);
+        }
+        catch (Exception ex)
+        {
+            ReportCriticalError("La pause n'a pas pu être enregistrée : elle sera perdue au prochain redémarrage.", ex);
+        }
+    }
 
     /// <summary>Sélecteur de fichier audio (FR-017) ; null si l'utilisateur annule.</summary>
     private string? PickSoundFile()

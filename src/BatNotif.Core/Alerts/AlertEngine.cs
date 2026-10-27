@@ -1,11 +1,13 @@
 using BatNotif.Core.Battery;
 using BatNotif.Core.Logging;
+using BatNotif.Core.Settings;
 
 namespace BatNotif.Core.Alerts;
 
 /// <summary>
-/// Moteur d'alerte : machine à états secteur × niveau avec hystérésis (data-model §3, engine-contract).
-/// Thread-safe ; les événements sont levés hors verrou, sur le thread qui a provoqué le changement.
+/// Moteur d'alerte : machine à états secteur × niveau avec hystérésis, plus snooze et pause
+/// (data-model §3, engine-contract). Thread-safe ; les événements sont levés hors verrou,
+/// sur le thread qui a provoqué le changement.
 /// </summary>
 public sealed class AlertEngine : IDisposable
 {
@@ -19,9 +21,15 @@ public sealed class AlertEngine : IDisposable
     private int _high;
     private AlertState _state = AlertState.Normal;
     private AlertOutput _output = AlertOutput.Initial;
+    private PauseState _pause = PauseState.None;
+    private ITimer? _pauseTimer;
+    private DateTimeOffset? _snoozeUntil;
+    private ITimer? _snoozeTimer;
     private bool _disposed;
 
-    public AlertEngine(IBatterySource source, TimeProvider time, IEventLog log, int lowThreshold, int highThreshold)
+    public AlertEngine(
+        IBatterySource source, TimeProvider time, IEventLog log, int lowThreshold, int highThreshold,
+        PauseState? initialPause = null)
     {
         _source = source;
         _time = time;
@@ -29,6 +37,15 @@ public sealed class AlertEngine : IDisposable
         _low = lowThreshold;
         _high = highThreshold;
         _ac = new AcPowerDebouncer(time, source.Current.AcPresent, _ => Recompute());
+
+        // Pause restaurée au démarrage (FR-026) ; une pause expirée est ignorée.
+        if (initialPause is not null && initialPause.IsActiveAt(time.GetUtcNow()))
+        {
+            _pause = initialPause;
+            SchedulePauseEnd();
+            _log.Write(_time, LogEventKind.Info, $"Pause restaurée : {Describe(_pause)}");
+        }
+
         _source.SnapshotChanged += OnSnapshotChanged;
     }
 
@@ -44,8 +61,23 @@ public sealed class AlertEngine : IDisposable
         }
     }
 
+    /// <summary>Pause en vigueur, à persister dans les réglages.</summary>
+    public PauseState CurrentPause
+    {
+        get
+        {
+            lock (_gate)
+            {
+                return _pause;
+            }
+        }
+    }
+
     /// <summary>Levé à chaque changement de <see cref="Output"/>.</summary>
     public event EventHandler<AlertOutput>? OutputChanged;
+
+    /// <summary>Levé à chaque changement de pause (début, reprise, échéance), pour la persister (FR-026).</summary>
+    public event EventHandler<PauseState>? PauseChanged;
 
     /// <summary>Évalue immédiatement l'état courant (démarrage, FR-004).</summary>
     public void Evaluate() => Guard(() =>
@@ -81,6 +113,52 @@ public sealed class AlertEngine : IDisposable
         Recompute();
     });
 
+    /// <summary>
+    /// Fait taire l'alerte en cours pendant 15 min (FR-027). Sans effet hors alerte ou pendant une pause.
+    /// </summary>
+    public void Snooze() => Guard(() =>
+    {
+        lock (_gate)
+        {
+            if (_state is not (AlertState.AlertLow or AlertState.AlertHigh) || _pause.Kind != PauseKind.None)
+            {
+                return;
+            }
+
+            CancelSnooze();
+            _snoozeUntil = _time.GetUtcNow() + AlertConstants.SnoozeDuration;
+            _snoozeTimer = _time.CreateTimer(_ => EndSnooze(), null, AlertConstants.SnoozeDuration, Timeout.InfiniteTimeSpan);
+            _log.Write(_time, LogEventKind.Snooze, $"{_state} mise en sourdine pour {AlertConstants.SnoozeDuration.TotalMinutes:0} min");
+        }
+
+        Recompute();
+    });
+
+    /// <summary>Met en pause : aucune présentation, l'état réel reste suivi (FR-023, FR-024).</summary>
+    public void Pause(PauseState pause) => Guard(() =>
+    {
+        if (pause.Kind == PauseKind.None)
+        {
+            Resume();
+            return;
+        }
+
+        lock (_gate)
+        {
+            CancelSnooze();
+            CancelPauseTimer();
+            _pause = pause;
+            SchedulePauseEnd();
+            _log.Write(_time, LogEventKind.PauseStarted, $"Pause {Describe(pause)}");
+        }
+
+        RaisePauseChanged(pause);
+        Recompute();
+    });
+
+    /// <summary>Termine la pause et réévalue immédiatement (FR-025).</summary>
+    public void Resume() => Guard(() => EndPause("reprise demandée par l'utilisateur"));
+
     public void Dispose()
     {
         lock (_gate)
@@ -91,6 +169,8 @@ public sealed class AlertEngine : IDisposable
             }
 
             _disposed = true;
+            CancelSnooze();
+            CancelPauseTimer();
         }
 
         _source.SnapshotChanged -= OnSnapshotChanged;
@@ -102,6 +182,61 @@ public sealed class AlertEngine : IDisposable
         _ac.Observe(snapshot.AcPresent);
         Recompute();
     });
+
+    private void EndSnooze() => Guard(() =>
+    {
+        lock (_gate)
+        {
+            CancelSnooze();
+        }
+
+        _log.Write(_time, LogEventKind.Info, "Fin du snooze : réévaluation");
+        Recompute();
+    });
+
+    private void EndPause(string reason)
+    {
+        lock (_gate)
+        {
+            if (_pause.Kind == PauseKind.None)
+            {
+                return;
+            }
+
+            CancelPauseTimer();
+            _pause = PauseState.None;
+            _log.Write(_time, LogEventKind.PauseEnded, $"Fin de pause : {reason}");
+        }
+
+        RaisePauseChanged(PauseState.None);
+        Recompute();
+    }
+
+    private void SchedulePauseEnd()
+    {
+        if (_pause is { Kind: PauseKind.Timed, Until: { } until })
+        {
+            var delay = until - _time.GetUtcNow();
+            _pauseTimer = _time.CreateTimer(
+                _ => Guard(() => EndPause("échéance atteinte")),
+                null,
+                delay > TimeSpan.Zero ? delay : TimeSpan.Zero,
+                Timeout.InfiniteTimeSpan);
+        }
+    }
+
+    private void CancelSnooze()
+    {
+        _snoozeTimer?.Dispose();
+        _snoozeTimer = null;
+        _snoozeUntil = null;
+    }
+
+    private void CancelPauseTimer()
+    {
+        _pauseTimer?.Dispose();
+        _pauseTimer = null;
+    }
 
     private void Recompute()
     {
@@ -123,14 +258,21 @@ public sealed class AlertEngine : IDisposable
                 _state = next;
             }
 
+            var inAlert = _state is AlertState.AlertLow or AlertState.AlertHigh;
+            if (!inAlert && _snoozeUntil is not null)
+            {
+                CancelSnooze(); // Le snooze ne vaut que pour l'alerte en cours (FR-027).
+            }
+
+            var paused = _pause.Kind != PauseKind.None;
             var output = new AlertOutput(
                 _state,
-                ShouldPresent: _state is AlertState.AlertLow or AlertState.AlertHigh,
+                ShouldPresent: inAlert && !paused && _snoozeUntil is null,
                 snapshot.Level,
                 ac,
-                PauseUntil: null,
-                PauseIndefinite: false,
-                SnoozeUntil: null);
+                PauseUntil: _pause.Kind == PauseKind.Timed ? _pause.Until : null,
+                PauseIndefinite: _pause.Kind == PauseKind.Indefinite,
+                SnoozeUntil: _snoozeUntil);
 
             if (output != _output)
             {
@@ -141,7 +283,7 @@ public sealed class AlertEngine : IDisposable
 
         if (changed is not null)
         {
-            Raise(changed);
+            Raise(OutputChanged, changed);
         }
     }
 
@@ -181,23 +323,24 @@ public sealed class AlertEngine : IDisposable
         return AlertState.Normal;
     }
 
-    private void Raise(AlertOutput output)
+    private void RaisePauseChanged(PauseState pause) => Raise(PauseChanged, pause);
+
+    private void Raise<T>(EventHandler<T>? handlers, T value)
     {
-        var handlers = OutputChanged;
         if (handlers is null)
         {
             return;
         }
 
-        foreach (var handler in handlers.GetInvocationList().Cast<EventHandler<AlertOutput>>())
+        foreach (var handler in handlers.GetInvocationList().Cast<EventHandler<T>>())
         {
             try
             {
-                handler(this, output);
+                handler(this, value);
             }
             catch (Exception ex)
             {
-                _log.Write(_time, LogEventKind.Error, $"Abonné à OutputChanged en échec — {ex}");
+                _log.Write(_time, LogEventKind.Error, $"Abonné à un événement du moteur en échec — {ex}");
             }
         }
     }
@@ -214,6 +357,13 @@ public sealed class AlertEngine : IDisposable
             _log.Write(_time, LogEventKind.Error, $"Erreur du moteur d'alerte — {ex}");
         }
     }
+
+    private static string Describe(PauseState pause) => pause.Kind switch
+    {
+        PauseKind.Indefinite => "indéfinie",
+        PauseKind.Timed => $"jusqu'à {pause.Until?.ToLocalTime():HH:mm}",
+        _ => "aucune",
+    };
 
     private static string AcLabel(bool ac) => ac ? "secteur présent" : "sur batterie";
 }

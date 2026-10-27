@@ -57,6 +57,9 @@ public sealed class NotificationViewModel : ObservableObject
         set => Set(ref _mode, value);
     }
 
+    /// <summary>Seule action de la notification : « Snooze 15 min » (FR-013).</summary>
+    public required System.Windows.Input.ICommand SnoozeCommand { get; init; }
+
     public string Title => Sound == AlertSound.Low ? "Batterie faible" : "Batterie haute";
 
     public string Message => Sound == AlertSound.Low

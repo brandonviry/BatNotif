@@ -79,6 +79,10 @@ public sealed class MainViewModel : ObservableObject
         TestLowSoundCommand = new RelayCommand(() => _player.PlayPreview(AlertSound.Low, LowSoundPath, (float)(VolumePercent / 100)));
         TestHighSoundCommand = new RelayCommand(() => _player.PlayPreview(AlertSound.High, HighSoundPath, (float)(VolumePercent / 100)));
         DismissWarningsCommand = new RelayCommand(Warnings.Clear);
+        Pause15Command = new RelayCommand(() => _engine.Pause(PauseState.For(App.Time, TimeSpan.FromMinutes(15))));
+        Pause60Command = new RelayCommand(() => _engine.Pause(PauseState.For(App.Time, TimeSpan.FromHours(1))));
+        PauseIndefiniteCommand = new RelayCommand(() => _engine.Pause(PauseState.Indefinite));
+        ResumeCommand = new RelayCommand(_engine.Resume);
 
         _engine.OutputChanged += (_, output) => _dispatcher.BeginInvoke(() => Output = output);
     }
@@ -100,9 +104,15 @@ public sealed class MainViewModel : ObservableObject
                 OnPropertyChanged(nameof(AcText));
                 OnPropertyChanged(nameof(StateText));
                 OnPropertyChanged(nameof(HasBattery));
+                OnPropertyChanged(nameof(IsPaused));
+                OnPropertyChanged(nameof(IsNotPaused));
             }
         }
     }
+
+    public bool IsPaused => _output.IsPaused;
+
+    public bool IsNotPaused => !_output.IsPaused;
 
     public int Level => _output.Level;
 
@@ -112,11 +122,15 @@ public sealed class MainViewModel : ObservableObject
 
     public string AcText => _output.AcPresent ? "Branché" : "Sur batterie";
 
-    public string StateText => _output.State switch
+    /// <summary>Libellé d'état (FR-033) : la pause et le snooze priment sur l'état d'alerte.</summary>
+    public string StateText => _output switch
     {
-        AlertState.AlertLow => "Alerte basse",
-        AlertState.AlertHigh => "Alerte haute",
-        AlertState.NoBattery => "Aucune batterie détectée",
+        { State: AlertState.NoBattery } => "Aucune batterie détectée",
+        { PauseIndefinite: true } => "Pause indéfinie",
+        { PauseUntil: { } until } => $"Pause jusqu'à {until.ToLocalTime():HH:mm}",
+        { SnoozeUntil: { } until } => $"Snooze jusqu'à {until.ToLocalTime():HH:mm}",
+        { State: AlertState.AlertLow } => "Alerte basse",
+        { State: AlertState.AlertHigh } => "Alerte haute",
         _ => "Normal",
     };
 
@@ -219,6 +233,14 @@ public sealed class MainViewModel : ObservableObject
 
     public ICommand DismissWarningsCommand { get; }
 
+    public ICommand Pause15Command { get; }
+
+    public ICommand Pause60Command { get; }
+
+    public ICommand PauseIndefiniteCommand { get; }
+
+    public ICommand ResumeCommand { get; }
+
     /// <summary>Ajoute un avertissement (sans doublon). Appelable depuis n'importe quel thread.</summary>
     public void AddWarning(string message)
     {
@@ -252,6 +274,7 @@ public sealed class MainViewModel : ObservableObject
             HighSoundPath = HighSoundPath.Trim(),
             Volume = VolumePercent / 100,
             StartWithWindows = StartWithWindows,
+            Pause = _engine.CurrentPause, // Ne jamais écraser une pause démarrée depuis l'ouverture de la fenêtre.
         };
 
         var validation = SettingsValidator.Validate(candidate);

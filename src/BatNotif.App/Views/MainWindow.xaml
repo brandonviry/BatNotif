@@ -118,6 +118,21 @@
             </StackPanel>
         </Border>
 
+        <!-- Pause (FR-023) -->
+        <Border Style="{StaticResource Card}">
+            <DockPanel>
+                <TextBlock Text="Pause" VerticalAlignment="Center" Width="96" />
+                <StackPanel Orientation="Horizontal" Visibility="{Binding IsNotPaused, Converter={StaticResource BoolToVisibility}}">
+                    <Button Content="15 min" Command="{Binding Pause15Command}" Margin="0" />
+                    <Button Content="1 h" Command="{Binding Pause60Command}" />
+                    <Button Content="Indéfinie" Command="{Binding PauseIndefiniteCommand}" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Visibility="{Binding IsPaused, Converter={StaticResource BoolToVisibility}}">
+                    <Button Content="▶ Reprendre" Command="{Binding ResumeCommand}" Margin="0" FontWeight="SemiBold" />
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
         <!-- 4. Volume et 5. Démarrage -->
         <Border Style="{StaticResource Card}">
             <StackPanel>

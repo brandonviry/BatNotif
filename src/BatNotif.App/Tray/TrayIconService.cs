@@ -7,27 +7,49 @@ using H.NotifyIcon;
 
 namespace BatNotif.App.Tray;
 
+/// <summary>Actions proposées par le menu de l'icône.</summary>
+public sealed record TrayActions(
+    Action Open,
+    Action Pause15,
+    Action Pause60,
+    Action PauseIndefinite,
+    Action Resume,
+    Action Quit);
+
 /// <summary>
-/// Icône de zone de notification. Icône statique générée par le code ; menu Ouvrir / Quitter.
-/// Complétée en US3 (pause) et US4 (icônes d'état, clic gauche).
+/// Icône de zone de notification. Icône statique générée par le code ; menu Ouvrir / Pause… / Reprendre / Quitter
+/// (ui-contract §1). Complétée en US4 (icônes d'état, clic gauche).
 /// </summary>
 public sealed class TrayIconService : IDisposable
 {
     private readonly TaskbarIcon _icon;
     private readonly Icon _image;
+    private readonly MenuItem[] _pauseItems;
+    private readonly MenuItem _resumeItem;
 
-    public TrayIconService(Action open, Action quit)
+    public TrayIconService(TrayActions actions)
     {
         _image = CreateIcon();
 
         var menu = new ContextMenu();
-        var openItem = new MenuItem { Header = "Ouvrir", FontWeight = System.Windows.FontWeights.SemiBold };
-        openItem.Click += (_, _) => open();
-        menu.Items.Add(openItem);
+        menu.Items.Add(Item("Ouvrir", actions.Open, bold: true));
         menu.Items.Add(new Separator());
-        var quitItem = new MenuItem { Header = "Quitter" };
-        quitItem.Click += (_, _) => quit();
-        menu.Items.Add(quitItem);
+        _pauseItems =
+        [
+            Item("Pause 15 min", actions.Pause15),
+            Item("Pause 1 h", actions.Pause60),
+            Item("Pause indéfinie", actions.PauseIndefinite),
+        ];
+        foreach (var item in _pauseItems)
+        {
+            menu.Items.Add(item);
+        }
+
+        _resumeItem = Item("Reprendre", actions.Resume, bold: true);
+        _resumeItem.Visibility = System.Windows.Visibility.Collapsed;
+        menu.Items.Add(_resumeItem);
+        menu.Items.Add(new Separator());
+        menu.Items.Add(Item("Quitter", actions.Quit));
 
         _icon = new TaskbarIcon
         {
@@ -38,10 +60,33 @@ public sealed class TrayIconService : IDisposable
         _icon.ForceCreate(enablesEfficiencyMode: false);
     }
 
+    /// <summary>Pause en cours : affiche « Reprendre » à la place des entrées de pause (thread UI).</summary>
+    public void SetPaused(bool paused)
+    {
+        foreach (var item in _pauseItems)
+        {
+            item.Visibility = paused ? System.Windows.Visibility.Collapsed : System.Windows.Visibility.Visible;
+        }
+
+        _resumeItem.Visibility = paused ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+    }
+
     public void Dispose()
     {
         _icon.Dispose();
         _image.Dispose();
+    }
+
+    private static MenuItem Item(string header, Action action, bool bold = false)
+    {
+        var item = new MenuItem { Header = header };
+        if (bold)
+        {
+            item.FontWeight = System.Windows.FontWeights.SemiBold;
+        }
+
+        item.Click += (_, _) => action();
+        return item;
     }
 
     /// <summary>Pastille verte « B » 32×32, sans fichier externe (research R7).</summary>

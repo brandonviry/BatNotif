@@ -52,7 +52,21 @@ Scénarios manuels — validés par l'utilisateur le 2026-10-27 :
 
 ## US3 — Snooze et pause (T053)
 
-*À venir.*
+Contrôles automatiques (2026-10-27) :
+
+- [x] Build solution sans warning ni erreur
+- [x] 94 tests unitaires verts (+19 : snooze, pause minutée / indéfinie, reprise, persistance au démarrage)
+- [x] Démarrage : le processus reste actif ; second lancement → fenêtre « BatNotif » affichée
+
+Scénarios manuels — validés par l'utilisateur le 2026-10-27 :
+
+| # | Scénario | Étapes | Résultat | Observations |
+|---|---|---|---|---|
+| M4 | Snooze | Déclencher une alerte (`--high <niveau−1>`), cliquer « Snooze 15 min » | ✅ OK | |
+| M5 | Pause persistée | Clic droit « B » → Pause 1 h ; Quitter ; relancer | ✅ OK | |
+| M6 | Reprendre | En pause avec la condition d'alerte vraie → Reprendre (fenêtre ou tray) | ✅ OK | |
+
+- [x] US3 validée manuellement (T053) → **première version livrable** (US1 + US2 + US3)
 
 ## US4 — Tray complet (T059)
 

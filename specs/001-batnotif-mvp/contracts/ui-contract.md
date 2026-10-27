@@ -52,7 +52,7 @@ Règles :
 | Aspect | Mode normal | Mode renforcé (plein écran) |
 |---|---|---|
 | Position | Coin haut-droit de l'écran de la fenêtre active | Centrée sur cet écran |
-| Taille | Compacte (≈ 360 × 120 px à 100 %) | Agrandie (≈ 2× plus grande, texte plus gros) |
+| Taille | Compacte (≈ 440 × 120 px à 100 %, place pour le bouton Snooze) | Agrandie (≈ 2× plus grande, texte plus gros) |
 | Focus | Ne prend **jamais** le focus | Passe au premier plan et **peut** prendre le focus |
 | Contenu | Icône du type d'alerte, message, niveau mis à jour en direct | Idem, plus visible |
 | Message bas | « Batterie à 18 % — branche le chargeur » | idem |

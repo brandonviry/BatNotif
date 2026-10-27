@@ -14,7 +14,7 @@ namespace BatNotif.App.Views;
 /// </summary>
 public partial class NotificationWindow : Window
 {
-    private const double NormalWidth = 360;
+    private const double NormalWidth = 440;
     private const double NormalHeight = 120;
     private const double EnhancedScale = 2;
     private const double ScreenMargin = 16;
