@@ -24,6 +24,8 @@ Dérivé utile : **`EffectivelyOnBattery = !AcPresent || Discharging`** (règle 
 
 ## 2. Settings — réglages persistés
 
+Type C# : `AppSettings` (et non `Settings`, pour éviter le conflit avec le namespace `BatNotif.Core.Settings`).
+
 Fichier `%AppData%\BatNotif\settings.json` — format exact dans [contracts/settings-schema.md](contracts/settings-schema.md).
 
 | Champ | Type | Défaut | Validation |
@@ -105,7 +107,7 @@ Persistée dans les réglages à chaque changement pour survivre au redémarrage
 | Champ | Type | Exemple |
 |---|---|---|
 | `Timestamp` | horodatage local ISO 8601 | `2026-10-27T14:03:12+01:00` |
-| `Kind` | énumération | `AppStart`, `AppStop`, `StateChanged`, `AlertPresented`, `AlertPresentFailed`, `Snooze`, `PauseStarted`, `PauseEnded`, `SettingsSaved`, `SettingsReset`, `SoundFallback`, `HotkeyUnavailable`, `Error` |
+| `Kind` | énumération | `AppStart`, `AppStop`, `StateChanged`, `AlertPresented`, `AlertPresentFailed`, `Snooze`, `PauseStarted`, `PauseEnded`, `SettingsSaved`, `SettingsReset`, `SoundFallback`, `HotkeyUnavailable`, `Info` (ex. second lancement, seuils Debug remplacés), `Error` |
 | `Detail` | texte | `Normal → AlertHigh à 80 % (secteur présent)` |
 
 Format d'une ligne : `<Timestamp> [<Kind>] <Detail>`.

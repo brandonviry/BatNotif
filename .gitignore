@@ -6,6 +6,12 @@ publish/
 *.suo
 .vs/
 TestResults/
+packages/
+*.tmp
+
+# Editors
+.vscode/
+.idea/
 
 # Claude Code local files (spec-kit skills in .claude/skills stay versioned)
 .claude/settings.local.json

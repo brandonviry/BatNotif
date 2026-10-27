@@ -1,0 +1,14 @@
+<Project>
+
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <Company>BatNotif</Company>
+    <Product>BatNotif</Product>
+    <Version>0.1.0</Version>
+    <Copyright>BatNotif</Copyright>
+  </PropertyGroup>
+
+</Project>

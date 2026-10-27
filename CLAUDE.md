@@ -126,9 +126,37 @@ L'utilisateur veut **voir ce qui se passe**. Chaque commande exécutée (build, 
   [2/3] Restauration des paquets (dotnet restore)…
   [3/3] Compilation (dotnet build)…
   ```
-- **Ne jamais masquer la sortie** : pas de `| Out-Null`, pas de `> $null` / `2>$null` / `> NUL`, pas de flags silencieux (`-q`, `--quiet`, `--silent`, `-nologo` qui cache des infos utiles).
+- **Ne jamais masquer la sortie** : pas de `| Out-Null`, pas de `> $null` / `2>$null` / `> NUL`, pas de flags silencieux (`-q`, `--quiet`, `--silent`, `-nologo` qui cache des infos utiles), et pas de filtrage de la sortie (`| Select-String`, `| Select-Object -Last N`, `| head`, `| tail`).
 - Privilégier la verbosité quand l'outil la propose (ex. `dotnet build -v normal` si `minimal` ne montre pas assez).
 - **Commandes en arrière-plan** : ne pas rediriger vers un fichier log par défaut, laisser la sortie défiler. Si une redirection est vraiment nécessaire, le dire et donner le chemin du fichier.
 - **À la fin de chaque commande**, recopier dans la conversation la partie utile de la sortie (étapes clés, warnings, erreurs, dernières lignes) et indiquer clairement succès ou échec.
 - Les **scripts et le code de l'application** suivent la même règle : chaque script écrit dans la console des messages d'étape numérotés (`[n/N] …`), et l'app journalise ses actions importantes (lecture batterie, transitions d'état, alertes, erreurs).
 - Logs textuels uniquement, pas de captures d'écran du terminal.
+
+---
+
+## 6. Barre de progression à la fin de chaque message
+
+Dès que l'implémentation a commencé, **chaque message** à l'utilisateur se termine par un bloc de progression
+calculé à partir de `specs/<feature>/tasks.md` (tâches cochées `[X]` / total) :
+
+```
+Progression de l'implémentation : ██████░░░░░░░░░░░░░░ 26 % (17/65 tâches)
+
+✅ Fait
+- Phase 1 · Setup (6/6)
+- Phase 2 · Fondations (11/11)
+
+⏳ Reste à faire
+- US1 · Alertes continues — jalon interne (0/17)
+- US2 · Réglages (0/11)
+- US3 · Snooze et pause → première version livrable (0/8)
+- US4 · Tray complet, raccourci (0/5)
+- Finition · Exe autonome, mesures, docs (0/7)
+```
+
+Règles :
+- Barre de **20 caractères** (`█` = fait, `░` = reste), une case = 5 %, pourcentage arrondi à l'entier.
+- Les chiffres viennent **toujours** de `tasks.md` (recompter, ne pas estimer) ; une phase commencée apparaît dans
+  « Reste à faire » avec son compteur (ex. `US1 (9/17)`) jusqu'à ce qu'elle soit complète.
+- Le bloc est placé **tout à la fin** du message, après tout le reste.

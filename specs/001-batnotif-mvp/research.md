@@ -200,12 +200,16 @@ se chevauchent pas (FR-018).
 
 ## Récapitulatif des dépendances NuGet (justification exigée par la constitution VI)
 
-| Paquet | Projet | Justification |
-|---|---|---|
-| `H.NotifyIcon.Wpf` | App | Icône tray WPF (R7), pas d'équivalent WPF natif |
-| `NAudio` | App | Boucle audio MP3/WAV sans coupure + sons générés (R6) |
-| `xunit`, `xunit.runner.visualstudio`, `Microsoft.NET.Test.Sdk` | Tests | Framework de test (R9) |
-| `Microsoft.Extensions.TimeProvider.Testing` | Tests | `FakeTimeProvider` pour simuler le temps (R9) |
+| Paquet | Version épinglée | Projet | Justification |
+|---|---|---|---|
+| `H.NotifyIcon.Wpf` | 2.4.1 | App | Icône tray WPF (R7), pas d'équivalent WPF natif |
+| `NAudio` | 3.3.0 | App | Boucle audio MP3/WAV sans coupure + sons générés (R6) |
+| `xunit` | 2.9.3 | Tests | Framework de test (R9) |
+| `xunit.runner.visualstudio` | 4.0.1 | Tests | Exécution des tests par `dotnet test` |
+| `Microsoft.NET.Test.Sdk` | 18.11.0 | Tests | Hôte de test |
+| `Microsoft.Extensions.TimeProvider.Testing` | 10.11.0 | Tests | `FakeTimeProvider` pour simuler le temps (R9) |
+
+SDK fixé par `global.json` : .NET 10.0.100, `rollForward: latestFeature` (installé : 10.0.114).
 
 Tout le reste (WinRT `PowerManager`, `System.Text.Json`, `Mutex`, registre, `RegisterHotKey`) fait partie de la
 plateforme.

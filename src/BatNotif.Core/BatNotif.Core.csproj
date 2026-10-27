@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Moteur d'alerte : aucune dépendance Windows / WPF (constitution, principe IV). -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>BatNotif.Core</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="BatNotif.Core.Tests" />
+  </ItemGroup>
+
+</Project>

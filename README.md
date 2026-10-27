@@ -11,15 +11,19 @@ L'alerte ne s'arrête pas tant que la situation n'est pas corrigée : notificati
 
 ## État d'avancement
 
-🟡 **Phase de conception.** Aucun code pour l'instant.
+🟡 **Implémentation en cours** : fondations posées (phases 1 et 2, 17 tâches sur 65). L'application ne fait encore rien de visible ; les alertes arrivent avec l'étape US1.
 
 - [x] Idée et cahier des charges rédigés → [`idee.md`](idee.md)
 - [x] Spec Kit installé (développement piloté par les specs)
 - [x] Constitution du projet v1.2.0 → [`.specify/memory/constitution.md`](.specify/memory/constitution.md)
 - [x] Spécification du MVP → [`specs/001-batnotif-mvp/spec.md`](specs/001-batnotif-mvp/spec.md)
 - [x] Plan technique → [`specs/001-batnotif-mvp/plan.md`](specs/001-batnotif-mvp/plan.md) (+ `research.md`, `data-model.md`, `contracts/`, `quickstart.md`)
-- [ ] Tâches (`/speckit-tasks`)
+- [x] Tâches → [`specs/001-batnotif-mvp/tasks.md`](specs/001-batnotif-mvp/tasks.md) (65 tâches)
 - [ ] Implémentation (`/speckit-implement`)
+  - [x] Phases 1–2 : solution, projets, types du moteur, journal, source batterie, instance unique
+  - [ ] US1 : alertes continues (jalon interne)
+  - [ ] US2 : réglages · US3 : snooze / pause → première version livrable
+  - [ ] US4 : tray complet, raccourci · Finition : exe autonome
 
 ---
 
@@ -56,7 +60,14 @@ Aucun droit administrateur requis. Choix justifiés dans [`specs/001-batnotif-mv
 
 ## Compiler et lancer
 
-*À compléter dès que le projet .NET existe.* Prérequis : SDK .NET 10. Procédure prévue : [`specs/001-batnotif-mvp/quickstart.md`](specs/001-batnotif-mvp/quickstart.md).
+Prérequis : SDK .NET 10 (version fixée par `global.json`).
+
+```powershell
+dotnet build BatNotif.sln      # compile les 3 projets
+dotnet test BatNotif.sln       # lance les tests du moteur
+```
+
+Le lancement de l'application et la publication de l'exe seront documentés au fil des étapes. Procédure complète prévue : [`specs/001-batnotif-mvp/quickstart.md`](specs/001-batnotif-mvp/quickstart.md).
 
 ---
 
