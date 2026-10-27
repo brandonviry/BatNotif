@@ -40,6 +40,10 @@ export const metadata: Metadata = {
     googleBot: { index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1 },
   },
   formatDetection: { telephone: false },
+  // Propriété Google Search Console (génère <meta name="google-site-verification" …>).
+  verification: {
+    google: 'QZ_eIyMR6Fze3QAJcCQcGwaFzbL3T-z4Cj6Y-B1PozM',
+  },
 };
 
 export const viewport: Viewport = {
