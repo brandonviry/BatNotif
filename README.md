@@ -11,7 +11,7 @@ L'alerte ne s'arrête pas tant que la situation n'est pas corrigée : notificati
 
 ## État d'avancement
 
-🟡 **Implémentation en cours** : fondations posées (phases 1 et 2, 17 tâches sur 65). L'application ne fait encore rien de visible ; les alertes arrivent avec l'étape US1.
+🟡 **Implémentation en cours** : jalon interne US1 atteint côté code (33 tâches sur 65). Les alertes continues fonctionnent avec les seuils par défaut (20 % / 80 %), y compris l'alerte renforcée en plein écran ; validation manuelle en cours. Pas encore de fenêtre de réglages ni de pause : l'app n'est pas encore distribuable.
 
 - [x] Idée et cahier des charges rédigés → [`idee.md`](idee.md)
 - [x] Spec Kit installé (développement piloté par les specs)
@@ -21,7 +21,7 @@ L'alerte ne s'arrête pas tant que la situation n'est pas corrigée : notificati
 - [x] Tâches → [`specs/001-batnotif-mvp/tasks.md`](specs/001-batnotif-mvp/tasks.md) (65 tâches)
 - [ ] Implémentation (`/speckit-implement`)
   - [x] Phases 1–2 : solution, projets, types du moteur, journal, source batterie, instance unique
-  - [ ] US1 : alertes continues (jalon interne)
+  - [ ] US1 : alertes continues (jalon interne) — code fait, validation manuelle en cours
   - [ ] US2 : réglages · US3 : snooze / pause → première version livrable
   - [ ] US4 : tray complet, raccourci · Finition : exe autonome
 
@@ -67,7 +67,16 @@ dotnet build BatNotif.sln      # compile les 3 projets
 dotnet test BatNotif.sln       # lance les tests du moteur
 ```
 
-Le lancement de l'application et la publication de l'exe seront documentés au fil des étapes. Procédure complète prévue : [`specs/001-batnotif-mvp/quickstart.md`](specs/001-batnotif-mvp/quickstart.md).
+Lancer l'application (une icône verte « B » apparaît dans la zone de notification ; clic droit → **Quitter**) :
+
+```powershell
+dotnet run --project src/BatNotif.App
+# Debug uniquement : simuler une alerte sans modifier le code
+dotnet run --project src/BatNotif.App -- --high 63   # alerte haute si branché et batterie ≥ 63 %
+dotnet run --project src/BatNotif.App -- --low 65    # alerte basse si sur batterie et batterie ≤ 65 %
+```
+
+Journal : `%AppData%\BatNotif\logs\`. La publication de l'exe sera documentée à l'étape de finition. Procédure complète prévue : [`specs/001-batnotif-mvp/quickstart.md`](specs/001-batnotif-mvp/quickstart.md).
 
 ---
 

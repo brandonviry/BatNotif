@@ -114,8 +114,9 @@ avec un jeu réel (voir [quickstart.md](quickstart.md)).
 
 ## R6. Audio en boucle
 
-**Décision** : **NAudio** — `AudioFileReader` (MP3 / WAV) dans un flux bouclé, sortie `WaveOutEvent`, volume
-via `AudioFileReader.Volume`. **Sons par défaut générés par le code** (deux motifs de bips distincts, basse /
+**Décision** : **NAudio** — `AudioFileReader` (MP3 / WAV) dans un flux bouclé, sortie `WaveOut` (nom de
+`WaveOutEvent` depuis NAudio 3), volume via `VolumeSampleProvider`. NAudio 3 lit dans un `Span<float>`
+(`ISampleProvider.Read(Span<float>)`). **Sons par défaut générés par le code** (deux motifs de bips distincts, basse /
 haute, via les générateurs de signal de NAudio) : aucun fichier audio externe à embarquer.
 
 **Pourquoi** : boucle sans coupure audible, volume fin, formats MP3 et WAV (hypothèse de la spec), tout en

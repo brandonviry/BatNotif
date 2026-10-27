@@ -8,6 +8,8 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AssemblyName>BatNotif</AssemblyName>
     <RootNamespace>BatNotif.App</RootNamespace>
+    <!-- Requis par le générateur LibraryImport (appels Win32). -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>

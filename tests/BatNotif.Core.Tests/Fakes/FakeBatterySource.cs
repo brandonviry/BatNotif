@@ -3,7 +3,7 @@ using BatNotif.Core.Battery;
 namespace BatNotif.Core.Tests.Fakes;
 
 /// <summary>Source batterie pilotée par les tests.</summary>
-internal sealed class FakeBatterySource : IBatterySource
+public sealed class FakeBatterySource : IBatterySource
 {
     private readonly TimeProvider _time;
 
@@ -36,6 +36,9 @@ internal sealed class FakeBatterySource : IBatterySource
         Current = snapshot;
         SnapshotChanged?.Invoke(this, snapshot);
     }
+
+    /// <summary>Change l'état sans lever d'événement (ex. changement survenu pendant la veille).</summary>
+    public void RaiseRawSilently(BatterySnapshot snapshot) => Current = snapshot;
 
     private BatterySnapshot Make(
         int level, bool acPresent, bool hasBattery, bool? charging = null, bool? discharging = null) =>
