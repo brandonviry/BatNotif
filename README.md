@@ -15,7 +15,7 @@ Le rappel se répète tant que la situation n'est pas corrigée, avec une notifi
 
 - [x] Idée et cahier des charges rédigés → [`idee.md`](idee.md)
 - [x] Spec Kit installé (développement piloté par les specs)
-- [ ] Constitution du projet (`/speckit-constitution`)
+- [x] Constitution du projet v1.0.0 → [`.specify/memory/constitution.md`](.specify/memory/constitution.md)
 - [ ] Spécification du MVP (`/speckit-specify` + `/speckit-clarify`)
 - [ ] Plan technique (`/speckit-plan`)
 - [ ] Tâches (`/speckit-tasks`)
@@ -63,6 +63,7 @@ Aucun droit administrateur requis.
 |---|---|
 | [`idee.md`](idee.md) | L'idée et le cahier des charges (le quoi / pourquoi détaillé) |
 | [`CLAUDE.md`](CLAUDE.md) | Règles de travail pour Claude Code (Spec Kit, workflow, logs) |
+| [`.specify/memory/constitution.md`](.specify/memory/constitution.md) | Constitution : les 6 principes non négociables du projet |
 | `specs/` | Spécifications, plans et tâches par feature (générés avec Spec Kit) |
 | `.specify/` | Infrastructure Spec Kit (constitution, templates, scripts) |
 | `.claude/skills/` | Commandes `/speckit-*` pour Claude Code |
