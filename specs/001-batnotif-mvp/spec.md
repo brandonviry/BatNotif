@@ -324,7 +324,8 @@ pour la rouvrir ; lancer l'application deux fois et vérifier qu'une seule icôn
 - **Formats audio** pris en charge : au minimum MP3 et WAV.
 - **Hors périmètre** (idee.md §4.3) : statistiques et historique, courbes de santé et cycles, notification vocale,
   coupure matérielle de la charge, thèmes de la notification.
-- **Distribution** (idee.md §11.8) et **repartir de zéro ou faire évoluer BatterieEtat** (idee.md §10) sont des
-  décisions de réalisation, traitées au moment du plan.
+- **Distribution** (idee.md §11.8) est une décision de réalisation, traitée au moment du plan.
+- **Indépendance** (idee.md §10) : le produit est développé de zéro dans ce dépôt, sans rien reprendre d'un autre
+  projet.
 - **Source de référence** : idee.md ; toute décision prise ici qui tranche une question ouverte sera reportée dans
   idee.md.

@@ -206,17 +206,20 @@ Stockage : `%AppData%\BatNotif\settings.json`. Repli sur des valeurs par défaut
 
 | Brique | Choix | Pourquoi |
 |---|---|---|
-| Langage / UI | **C# + WPF, .NET 8** | Mature sous Windows, fenêtres custom faciles, expérience déjà acquise |
-| TFM | `net8.0-windows10.0.19041.0` | Accès aux API batterie WinRT |
-| Batterie | `Windows.Devices.Power.Battery` + `BatteryStatusChanged` | Événementiel, précis ; polling de secours toutes les ~5 s |
-| Secteur | `System.Windows.Forms.SystemInformation.PowerStatus` | Simple et fiable |
-| Tray | `H.NotifyIcon.Wpf` | Éprouvé, WPF-friendly |
-| Audio | `NAudio` ou `MediaPlayer` WPF | MP3/WAV, volume, boucle |
+| Langage / UI | **C# + WPF, .NET 10 (LTS)** | Fenêtre de notification maison nette et facile à rendre topmost sans vol de focus ; .NET 8 arrive en fin de support le 2026-11-10 |
+| TFM | `net10.0-windows10.0.19041.0` (app) / `net10.0` (moteur) | Accès aux API WinRT ; moteur sans dépendance Windows, donc testable |
+| Batterie + secteur | WinRT `PowerManager` + événements | Niveau, charge / décharge, chargeur insuffisant, absence de batterie ; polling de secours toutes les 5 s |
+| Tray | `H.NotifyIcon.Wpf` | Icône tray WPF, icônes d'état générées par le code |
+| Audio | `NAudio` | Boucle MP3/WAV sans coupure, volume ; sons par défaut générés par le code |
+| Tests | xUnit + `FakeTimeProvider` | Moteur testé avec un temps simulé |
+| Distribution | `.exe` unique autonome (win-x64) | Rien à installer, aucun droit admin |
 | Réglages | JSON + `System.Text.Json` | Zéro dépendance, lisible |
 | Auto-start | Clé `HKCU\Software\Microsoft\Windows\CurrentVersion\Run` | Pas besoin d'admin |
 | Instance unique | `Mutex` nommé | Évite les doublons |
 
 Aucune élévation de privilèges requise.
+
+> **Stack validée** *(décidé)* après réévaluation neutre, à partir de la spec uniquement, dans `specs/001-batnotif-mvp/research.md` : WPF retenu face à WinUI 3 (interop omniprésente, distribution compliquée) et WinForms (rendu custom limité). Technos web embarquées (Electron, Tauri) exclues : trop lourdes.
 
 ---
 
@@ -234,24 +237,9 @@ Aucune élévation de privilèges requise.
 
 ---
 
-## 10. Base existante réutilisable
+## 10. Indépendance du projet
 
-Un projet `BatterieEtat` existe déjà sur la machine :
-
-- chemin : `D:\notification_bat\BatterieEtat`
-- stack : C# WPF .NET 8, `H.NotifyIcon.Wpf`, `NAudio`, toasts Windows
-- contient déjà : lecture batterie, seuils LOW/FULL paramétrables, hystérésis, icône tray, mutex, assets audio et icône.
-
-**Différences avec la présente idée :**
-
-| Point | BatterieEtat | BatNotif |
-|---|---|---|
-| Notification | toast Windows | fenêtre custom + musique |
-| Son | fichiers fixes | **choisi par l'utilisateur, par type** |
-| Répétition | à confirmer | **alerte continue (son en boucle) jusqu'à correction** |
-| Pause | à confirmer | **exigée** |
-
-→ Décision à prendre : **repartir de zéro** dans `D:\bat_notif` (plus propre, l'idée est plus riche) ou **forker / faire évoluer** `BatterieEtat`. Le squelette batterie + tray est de toute façon réutilisable.
+BatNotif est **développé de zéro dans ce dépôt**, de façon totalement indépendante : aucun code, asset ni choix technique n'est repris d'un autre projet. Tout le travail se fait uniquement dans ce dossier. *(Décidé.)*
 
 ---
 
@@ -264,7 +252,7 @@ Un projet `BatterieEtat` existe déjà sur la machine :
 5. **Pause** : bouton unique ou choix de durée (15 min / 1 h / indéfiniment) ?
 6. ~~**Mode plein écran / jeu** : masquer la notification ou l'afficher quand même ?~~ → **Décidé : l'alerte est renforcée et interrompt la session** (passe devant le jeu, plus grande, avec son). L'option « silencieux en plein écran » est supprimée.
 7. **Multi-utilisateurs / multi-batteries** : hors périmètre ?
-8. **Distribution** : `.exe` single-file auto-suffisant, ou installeur (MSI / Inno Setup) ?
+8. ~~**Distribution** : `.exe` single-file auto-suffisant, ou installeur (MSI / Inno Setup) ?~~ → **Décidé : `.exe` unique autonome** (~60–80 Mo, rien à installer, aucun droit admin), sans installeur.
 
 ---
 

@@ -4,6 +4,14 @@ Instructions pour Claude Code dans ce projet. Ce fichier explique comment le pro
 
 ---
 
+## 0. Périmètre de travail : uniquement ce dossier
+
+- On travaille **exclusivement dans `D:\bat_notif`**. Aucun autre dossier du disque n'est lu, listé, exploré ni
+  réutilisé, même si un document cite son chemin.
+- BatNotif est **indépendant** : aucun code, asset ni choix technique n'est repris d'un autre projet.
+- Si un document mentionne un chemin ou un projet externe : le signaler à l'utilisateur et lui demander, sans
+  jamais l'ouvrir.
+
 ## 1. L'idée du projet : `idee.md`
 
 - `idee.md` (à la racine du projet) est **le document de référence de l'idée** : pitch, problème, fonctionnalités, machine à états, interface, stack, cas limites, décisions à trancher, roadmap.

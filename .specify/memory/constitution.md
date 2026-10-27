@@ -1,6 +1,23 @@
 <!--
 Sync Impact Report
 ==================
+Version change: 1.1.0 → 1.2.0
+Bump rationale: MINOR — section « Contraintes techniques » révisée suite au plan
+001-batnotif-mvp (research.md R1–R11), validé par l'utilisateur. Aucun principe modifié.
+
+Modified sections :
+- Contraintes techniques : .NET 8 → .NET 10 LTS (fin de support .NET 8 le 2026-11-10) ;
+  API batterie Battery/PowerStatus → PowerManager ; framework de tests fixé (xUnit +
+  FakeTimeProvider) ; distribution fixée (.exe autonome single-file) ; exclusion des technos
+  web embarquées ; indépendance du projet (idee.md §10) ; toute mention d'un autre projet supprimée.
+
+Added sections : aucune
+Removed sections : aucune
+Templates : aucun impact.
+Deferred TODOs : aucun.
+
+--- Historique ---
+
 Version change: 1.0.0 → 1.1.0
 Bump rationale: MINOR — règles des principes I, II et III précisées suite aux décisions prises
 lors de la spec 001-batnotif-mvp (idee.md §11.3, §11.4, §11.6), sans suppression de principe.
@@ -17,8 +34,6 @@ Added sections : aucune
 Removed sections : aucune
 Templates : aucun impact (plan/spec/tasks templates non modifiés).
 Deferred TODOs : aucun.
-
---- Historique ---
 
 Version change: (template vierge) → 1.0.0
 Bump rationale: première ratification — remplacement complet du modèle par des principes concrets.
@@ -46,7 +61,7 @@ Templates / dépendances :
 
 Deferred TODOs : aucun placeholder laissé.
 Décisions produit volontairement NON tranchées ici (relèvent de /speckit-clarify) :
-idee.md §10 (repartir de zéro vs faire évoluer BatterieEtat) et §11 (nom définitif,
+idee.md §11 (nom définitif,
 notification au démarrage, répétition plafonnée, son en boucle, durées de pause,
 mode plein écran, multi-batteries, mode de distribution).
 -->
@@ -158,17 +173,26 @@ après coup, sans débogueur.
 ## Contraintes techniques
 
 - **Plateforme** : Windows 10 (19041) et plus, PC portable avec batterie.
-- **Langage / UI** : C# + WPF, **.NET 8**, TFM `net8.0-windows10.0.19041.0`.
-- **Batterie** : `Windows.Devices.Power.Battery` + événement `ReportUpdated`, avec un
-  polling de secours ; secteur via `SystemInformation.PowerStatus` (ou équivalent).
-- **Tray** : `H.NotifyIcon.Wpf`. **Audio** : `NAudio` (ou `MediaPlayer` WPF si suffisant).
+- **Langage / UI** : C# + WPF, **.NET 10 (LTS)**. Application en `net10.0-windows10.0.19041.0`,
+  moteur (`BatNotif.Core`) en `net10.0` sans aucune dépendance Windows / WPF.
+- **Batterie / secteur** : WinRT `Windows.System.Power.PowerManager` (niveau, état de charge,
+  état de l'alimentation dont « chargeur insuffisant ») et ses événements, avec un polling de
+  secours toutes les 5 s ; sortie de veille via `SystemEvents.PowerModeChanged`.
+- **Tray** : `H.NotifyIcon.Wpf`. **Audio** : `NAudio` (lecture en boucle, sons par défaut générés
+  par le code).
 - **Réglages** : JSON via `System.Text.Json`, dans `%AppData%\BatNotif\`.
 - **Démarrage auto** : clé `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`.
 - **Notification** : fenêtre WPF maison sans bordure, pas de toast Windows.
-- **Tests** : projet de tests .NET séparé (framework choisi dans le premier `plan.md`).
-- Les choix ouverts de `idee.md` §10 (partir de zéro ou faire évoluer `BatterieEtat`) et
-  §11 (dont le mode de distribution) sont tranchés dans les specs via `/speckit-clarify`,
-  puis reportés dans `idee.md`.
+- **Tests** : **xUnit** dans un projet de tests séparé, temps simulé via `TimeProvider` /
+  `FakeTimeProvider`.
+- **Distribution** : `.exe` unique autonome (win-x64, self-contained, single-file, compressé),
+  sans installeur ni droits admin.
+- Technos web embarquées (Electron, Tauri…) exclues : trop lourdes pour un utilitaire permanent.
+- Le projet est **indépendant** : développé de zéro dans ce dépôt, sans reprendre de code,
+  d'asset ni de choix technique d'un autre projet (`idee.md` §10). La stack ci-dessus a été
+  choisie par réévaluation neutre (`specs/001-batnotif-mvp/research.md`).
+- Les choix ouverts restants de `idee.md` §11 sont tranchés dans les specs ou les plans, puis
+  reportés dans `idee.md`.
 
 ## Workflow de développement et qualité
 
@@ -201,4 +225,4 @@ après coup, sans débogueur.
 - `CLAUDE.md` contient les consignes de travail au quotidien (logs, workflow, fichiers de
   référence).
 
-**Version**: 1.1.0 | **Ratified**: 2026-10-27 | **Last Amended**: 2026-10-27
+**Version**: 1.2.0 | **Ratified**: 2026-10-27 | **Last Amended**: 2026-10-27

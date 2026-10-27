@@ -5,7 +5,7 @@ Application Windows discrète qui tourne en arrière-plan et **protège la sant�
 - **trop basse** (défaut ≤ 20 %, sur batterie) → branche le chargeur ;
 - **trop haute** (défaut ≥ 80 %, sur secteur) → débranche le chargeur.
 
-Le rappel se répète tant que la situation n'est pas corrigée, avec une notification maison (fenêtre toujours au premier plan, qui ne vole pas le focus), un bouton **Pause** et des réglages persistants.
+L'alerte ne s'arrête pas tant que la situation n'est pas corrigée : notification maison persistante (toujours au premier plan, sans voler le focus, sauf en plein écran où elle interrompt la session) et son en boucle, avec **Snooze** et **Pause**, et des réglages persistants.
 
 ---
 
@@ -15,10 +15,9 @@ Le rappel se répète tant que la situation n'est pas corrigée, avec une notifi
 
 - [x] Idée et cahier des charges rédigés → [`idee.md`](idee.md)
 - [x] Spec Kit installé (développement piloté par les specs)
-- [x] Constitution du projet v1.1.0 → [`.specify/memory/constitution.md`](.specify/memory/constitution.md)
+- [x] Constitution du projet v1.2.0 → [`.specify/memory/constitution.md`](.specify/memory/constitution.md)
 - [x] Spécification du MVP → [`specs/001-batnotif-mvp/spec.md`](specs/001-batnotif-mvp/spec.md)
-- [ ] Clarifications complémentaires (`/speckit-clarify`, optionnel)
-- [ ] Plan technique (`/speckit-plan`)
+- [x] Plan technique → [`specs/001-batnotif-mvp/plan.md`](specs/001-batnotif-mvp/plan.md) (+ `research.md`, `data-model.md`, `contracts/`, `quickstart.md`)
 - [ ] Tâches (`/speckit-tasks`)
 - [ ] Implémentation (`/speckit-implement`)
 
@@ -39,23 +38,25 @@ Le détail complet est dans [`idee.md`](idee.md).
 
 ---
 
-## Stack prévue
+## Stack
 
 | Brique | Choix |
 |---|---|
-| Langage / UI | C# + WPF, .NET 8 (`net8.0-windows10.0.19041.0`) |
-| Batterie | `Windows.Devices.Power.Battery` (WinRT) |
+| Langage / UI | C# + WPF, **.NET 10 LTS** (`net10.0-windows10.0.19041.0`) |
+| Moteur d'alerte | Projet `BatNotif.Core` (`net10.0`), sans dépendance Windows, testé avec xUnit |
+| Batterie / secteur | WinRT `PowerManager` |
 | Icône tray | `H.NotifyIcon.Wpf` |
 | Audio | `NAudio` |
-| Réglages | JSON (`System.Text.Json`) |
+| Réglages | JSON (`System.Text.Json`) dans `%AppData%\BatNotif\` |
+| Distribution | `.exe` unique autonome (win-x64), rien à installer |
 
-Aucun droit administrateur requis.
+Aucun droit administrateur requis. Choix justifiés dans [`specs/001-batnotif-mvp/research.md`](specs/001-batnotif-mvp/research.md).
 
 ---
 
 ## Compiler et lancer
 
-*À compléter dès que le projet .NET existe.*
+*À compléter dès que le projet .NET existe.* Prérequis : SDK .NET 10. Procédure prévue : [`specs/001-batnotif-mvp/quickstart.md`](specs/001-batnotif-mvp/quickstart.md).
 
 ---
 
@@ -64,7 +65,7 @@ Aucun droit administrateur requis.
 | Chemin | Contenu |
 |---|---|
 | [`idee.md`](idee.md) | L'idée et le cahier des charges (le quoi / pourquoi détaillé) |
-| [`CLAUDE.md`](CLAUDE.md) | Règles de travail pour Claude Code (Spec Kit, workflow, logs) |
+| [`CLAUDE.md`](CLAUDE.md) | Règles de travail pour Claude Code (périmètre, Spec Kit, workflow, logs) |
 | [`.specify/memory/constitution.md`](.specify/memory/constitution.md) | Constitution : les 6 principes non négociables du projet |
 | `specs/` | Spécifications, plans et tâches par feature (générés avec Spec Kit) |
 | `.specify/` | Infrastructure Spec Kit (constitution, templates, scripts) |
