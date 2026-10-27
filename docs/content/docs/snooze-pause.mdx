@@ -1,0 +1,46 @@
+---
+title: Snooze et pause
+description: Fais taire temporairement l'alerte batterie de BatNotif avec le snooze de 15 minutes ou une pause de 15 minutes, 1 heure ou indéfinie, conservée au redémarrage.
+---
+
+L'alerte de BatNotif insiste jusqu'à ce que tu branches ou débranches. Quand tu ne peux pas le faire tout de suite (réunion, pas de chargeur à portée, partie en cours), deux outils la font taire temporairement.
+
+## Snooze 15 min
+
+Le bouton **Snooze 15 min** est le seul bouton de la notification :
+
+- la notification disparaît et le son s'arrête immédiatement ;
+- au bout de **15 minutes**, si la situation n'a pas changé, l'alerte revient ;
+- si tu corriges la situation pendant le snooze, le snooze est annulé. À la prochaine alerte, la notification apparaîtra normalement.
+
+Le bouton fonctionne sans que la notification prenne le focus : un clic suffit.
+
+## Pause
+
+La pause suspend **toutes** les alertes, pour la durée de ton choix :
+
+| Durée | Depuis |
+|---|---|
+| **15 min** | la fenêtre de réglages ou le menu clic droit |
+| **1 h** | la fenêtre de réglages ou le menu clic droit |
+| **Indéfinie** | la fenêtre de réglages ou le menu clic droit, jusqu'à ce que tu cliques sur **Reprendre** |
+
+Pendant la pause :
+
+- BatNotif continue de **suivre** la batterie, il n'émet simplement aucune alerte ;
+- la pastille devient **grise** et l'état affiche « Pause jusqu'à HH:MM » ou « Pause indéfinie » ;
+- le menu clic droit propose **Reprendre** à la place des entrées de pause.
+
+À la fin de la pause, ou quand tu cliques sur **Reprendre**, BatNotif réévalue la situation **immédiatement** : si la batterie est hors zone, l'alerte part tout de suite.
+
+<Callout title="La pause survit au redémarrage">
+  La pause est enregistrée. Si tu quittes BatNotif ou redémarres le PC pendant une pause d'une heure, elle est toujours active au retour, avec la même heure de fin. Une pause déjà terminée est simplement ignorée.
+</Callout>
+
+## Snooze ou pause ?
+
+| Besoin | Outil |
+|---|---|
+| Je branche dans quelques minutes | **Snooze** |
+| Réunion, film, partie de jeu | **Pause 1 h** |
+| Je veux rester branché à 100 % aujourd'hui (présentation, travail sur secteur) | **Pause indéfinie**, puis **Reprendre** |

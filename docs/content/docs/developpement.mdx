@@ -1,0 +1,88 @@
+---
+title: Développement
+description: Compiler BatNotif depuis les sources (C#, WPF, .NET 10), lancer les tests, simuler une alerte, publier l'exe autonome et comprendre l'architecture du projet.
+---
+
+BatNotif est écrit en **C# / WPF** sur **.NET 10 LTS**. Le code est sur [GitHub](https://github.com/brandonviry/BatNotif).
+
+## Prérequis
+
+- Windows 10 (19041) ou 11, x64
+- SDK **.NET 10** (la version est fixée par `global.json`)
+- PowerShell 7 pour le script de publication
+
+## Compiler, tester, lancer
+
+```powershell
+git clone https://github.com/brandonviry/BatNotif.git
+cd BatNotif
+dotnet build BatNotif.sln      # compile les 3 projets
+dotnet test BatNotif.sln       # 94 tests du moteur et des réglages
+dotnet run --project src/BatNotif.App
+```
+
+### Simuler une alerte
+
+En build **Debug** uniquement, deux arguments remplacent les seuils pour la session, sans les enregistrer :
+
+```powershell
+dotnet run --project src/BatNotif.App -- --high 63   # alerte haute si branché et batterie ≥ 63 %
+dotnet run --project src/BatNotif.App -- --low 65    # alerte basse si sur batterie et batterie ≤ 65 %
+```
+
+Ces arguments n'existent pas dans l'exe publié.
+
+## Publier l'exe autonome
+
+```powershell
+./scripts/publish.ps1
+```
+
+Le script lance les tests, puis produit deux exécutables autonomes win-x64 (runtime inclus, un seul fichier chacun) :
+
+| Sortie | Compression | Taille |
+|---|---|---|
+| `publish/standard/BatNotif.exe` | non | ≈ 160 Mo |
+| `publish/compact/BatNotif.exe` | oui | ≈ 69 Mo |
+
+## Architecture
+
+```text
+src/
+├── BatNotif.Core/        net10.0 — aucune dépendance Windows
+│   ├── Alerts/           AlertEngine : machine à états, hystérésis, snooze, pause
+│   ├── Battery/          BatterySnapshot, IBatterySource, filtre secteur 2 s
+│   ├── Settings/         AppSettings, validation, settings.json
+│   └── Logging/          événements du journal
+└── BatNotif.App/         net10.0-windows — WPF
+    ├── Platform/         batterie (WinRT PowerManager), veille, plein écran, raccourci, démarrage auto
+    ├── Audio/            lecture en boucle (NAudio), sons intégrés générés
+    ├── Tray/             pastille générée (H.NotifyIcon), menu
+    ├── Views/            fenêtre de réglages, notification normale / renforcée
+    └── Presentation/     AlertPresenter : relie le moteur à l'affichage et au son
+tests/
+└── BatNotif.Core.Tests/  xUnit + FakeTimeProvider (temps simulé)
+```
+
+Le **moteur d'alerte** est isolé dans `BatNotif.Core`, qui ne peut pas dépendre de Windows : toutes les règles (seuils, marge de 2 %, filtre secteur, alerte continue, snooze, pause, veille) sont testées avec une batterie et une horloge **simulées**, sans attendre qu'une vraie batterie atteigne 80 %.
+
+| Brique | Choix |
+|---|---|
+| Interface | WPF (.NET 10 LTS) |
+| Batterie / secteur | WinRT `Windows.System.Power.PowerManager` + relecture toutes les 5 s |
+| Icône de notification | H.NotifyIcon.Wpf |
+| Audio | NAudio |
+| Réglages | `System.Text.Json` |
+| Tests | xUnit, `Microsoft.Extensions.TimeProvider.Testing` |
+
+## Méthode de travail
+
+Le projet suit le **développement piloté par les spécifications** avec [Spec Kit](https://github.com/github/spec-kit) : idée (`idee.md`) → constitution → spécification → plan → tâches → implémentation. Tous les documents sont dans le dépôt :
+
+- `idee.md` : le cahier des charges ;
+- `.specify/memory/constitution.md` : les principes non négociables ;
+- `specs/001-batnotif-mvp/` : spécification, plan, recherche technique, modèle de données, contrats, guide de validation et tâches.
+
+## Ce site
+
+Cette documentation est un site [Fumadocs](https://fumadocs.dev) (Next.js) dans le dossier `docs/` du dépôt, déployé sur Vercel à chaque push sur `main`. Les pages sont dans `docs/content/docs/`.

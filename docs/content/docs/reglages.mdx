@@ -1,0 +1,59 @@
+---
+title: Réglages
+description: Règle les seuils de batterie de BatNotif, choisis un son MP3 ou WAV pour chaque alerte, ajuste le volume et active le démarrage automatique avec Windows.
+---
+
+Ouvre la fenêtre de réglages d'un **clic gauche** sur la pastille, avec **Ouvrir** dans le menu clic droit ou avec <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>B</kbd>. Les changements s'appliquent dès que tu cliques sur **Enregistrer**, sans redémarrer.
+
+## Seuils de batterie
+
+| Réglage | Par défaut | Plage |
+|---|---|---|
+| **Brancher à** (seuil bas) | 20 % | 5 à 95 % |
+| **Débrancher à** (seuil haut) | 80 % | 5 à 95 % |
+
+Le seuil haut doit dépasser le seuil bas d'**au moins 5 %**. Sans cet écart, les marges de fin d'alerte (± 2 %) se chevaucheraient. Si la saisie est invalide, l'enregistrement est refusé avec un message clair, par exemple : « Le seuil haut doit dépasser le seuil bas d'au moins 5 % ».
+
+Le bouton **↺** à côté de chaque seuil le remet à sa valeur par défaut.
+
+<Callout title="Quels seuils choisir ?">
+  20 % et 80 % sont un bon compromis entre autonomie et santé de la batterie. Certains préfèrent 30 % / 70 % pour ménager encore plus la batterie. Voir [Santé de la batterie](/docs/sante-batterie).
+</Callout>
+
+## Sons
+
+Chaque alerte a son propre son :
+
+- **Choisir…** : sélectionne un fichier **MP3** ou **WAV** (ta musique, un bip, une voix…) ;
+- **Intégré** : revient au son intégré (bips graves descendants pour l'alerte basse, bips aigus montants pour l'alerte haute) ;
+- **▶ Tester** : joue le son une fois, au volume réglé.
+
+Si le fichier choisi est déplacé ou supprimé, BatNotif joue le son intégré à la place et affiche un avertissement dans la fenêtre. Tu ne rates donc jamais une alerte à cause d'un fichier manquant.
+
+## Volume
+
+Le curseur règle le volume des alertes et des tests, de 0 à 100 % (80 % par défaut). Le son reste aussi soumis au volume général et au mixeur de Windows.
+
+## Démarrer avec Windows
+
+Coche **Démarrer avec Windows** pour lancer BatNotif automatiquement à l'ouverture de ta session, en arrière-plan. L'option est **désactivée par défaut** et ne demande aucun droit administrateur.
+
+## Avertissements
+
+Un encadré orange apparaît dans la fenêtre si quelque chose mérite ton attention :
+
+- les réglages enregistrés étaient illisibles et ont été remplacés par les valeurs par défaut ;
+- un fichier son est introuvable ;
+- le raccourci <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>B</kbd> est déjà utilisé par une autre application ;
+- une erreur inattendue risque d'empêcher les alertes.
+
+## Où sont stockés les réglages ?
+
+| Emplacement | Contenu |
+|---|---|
+| `%AppData%\BatNotif\settings.json` | Seuils, sons, volume, démarrage automatique et pause en cours |
+| `%AppData%\BatNotif\logs\batnotif-AAAA-MM-JJ.log` | Journal : un fichier par jour, conservé 14 jours |
+
+`settings.json` est un fichier texte lisible. S'il est corrompu, BatNotif le renomme en `settings.corrupt-<date>.json`, repart sur les valeurs par défaut et te prévient. Il ne plante pas et rien n'est perdu.
+
+Le journal note les événements importants (démarrage, changements d'état, alertes, snooze, pause, enregistrements, erreurs), ce qui est utile pour comprendre ce qui s'est passé pendant ton absence.

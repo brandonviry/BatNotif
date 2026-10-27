@@ -25,6 +25,31 @@ Instructions pour Claude Code dans ce projet. Ce fichier explique comment le pro
 - **On le met à jour à chaque changement significatif** : nouvelle feature implémentée, étape du workflow Spec Kit terminée, changement de stack, nouvelle commande de build ou de lancement, changement de l'état d'avancement. On vérifie systématiquement que le README est à jour avant de proposer un commit.
 - Différence avec `idee.md` : `idee.md` = l'idée et le cahier des charges (le **quoi / pourquoi** détaillé) ; `README.md` = la vitrine et le mode d'emploi du projet **tel qu'il existe réellement**.
 
+## 1 ter. Site de documentation `docs/` : toujours aligné sur le produit réel
+
+- Le dossier **`docs/`** contient le site public de BatNotif ([Fumadocs](https://fumadocs.dev), Next.js), en ligne sur
+  **https://batnotif.vercel.app**. Pages : `docs/content/docs/*.mdx` (ordre dans `meta.json`), accueil :
+  `docs/app/(home)/page.tsx`.
+- **Règle : dès qu'une fonctionnalité est terminée et poussée, ou qu'un guide / un document est commité, on met à
+  jour le site dans le même commit (ou juste après, avant le push suivant).** Concrètement :
+  - nouvelle fonctionnalité ou comportement modifié → page(s) concernée(s) (`alertes`, `reglages`, `snooze-pause`,
+    `premiers-pas`…) **et** la liste des fonctionnalités de l'accueil si besoin ;
+  - nouvelle version publiée (Release GitHub) → numéro de version, tailles et liens de `installation.mdx` et de
+    l'accueil (`softwareVersion` des données structurées compris) ;
+  - nouveau réglage, emplacement de fichier, raccourci ou message → `reglages.mdx` et `faq.mdx` ;
+  - changement de stack, d'architecture, de commande de build ou de publication → `developpement.mdx` ;
+  - nouveau guide ou document dans le dépôt → page correspondante sur le site (ou section dans une page existante).
+- Le site ne décrit **que ce qui existe réellement** et a été validé : jamais de fonctionnalité prévue présentée
+  comme disponible, jamais d'affirmation non vérifiée (licence, chiffres, compatibilité).
+- **SEO à préserver** à chaque modification : un `title` et une `description` explicites dans le frontmatter de
+  chaque page, un seul titre de niveau 1, des mots-clés naturels (batterie, notification, santé de la batterie,
+  alerte, PC portable, Windows), liens internes entre pages.
+- Avant de proposer le commit : `pnpm build` et `pnpm lint` dans `docs/` doivent passer (jamais `pnpm dev`, lancé
+  par l'utilisateur lui-même).
+- **Déploiement : uniquement via GitHub.** Le projet Vercel `batnotif` est relié au dépôt (dossier racine `docs`,
+  branche `main`) : c'est le push sur `main` qui déploie. **Ne jamais utiliser `vercel deploy`** ni déployer
+  directement depuis la machine.
+
 ---
 
 ## 2. Spec Kit : c'est quoi ?
@@ -54,6 +79,7 @@ specify init --here --integration claude --script ps
 bat_notif/
 ├── CLAUDE.md                  ← ce fichier
 ├── README.md                  ← présentation + mode d'emploi du projet (à tenir à jour)
+├── docs/                      ← site de documentation Fumadocs (batnotif.vercel.app, à tenir à jour, §1 ter)
 ├── idee.md                    ← l'idée / cahier des charges (à tenir à jour)
 ├── .claude/
 │   └── skills/

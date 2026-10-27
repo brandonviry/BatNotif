@@ -9,6 +9,17 @@ TestResults/
 packages/
 *.tmp
 
+# Caches locaux des outils Node (gardés sur D:, jamais sur C:)
+.cache/
+
+# Site de documentation (Next.js / Fumadocs)
+docs/node_modules/
+docs/.next/
+docs/.source/
+docs/next-env.d.ts
+docs/.vercel/
+.vercel/
+
 # Editors
 .vscode/
 .idea/

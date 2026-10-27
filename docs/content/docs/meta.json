@@ -1,0 +1,18 @@
+{
+  "title": "Documentation",
+  "pages": [
+    "---Bien démarrer---",
+    "index",
+    "installation",
+    "premiers-pas",
+    "---Utiliser BatNotif---",
+    "alertes",
+    "reglages",
+    "snooze-pause",
+    "---Comprendre---",
+    "sante-batterie",
+    "faq",
+    "---Contribuer---",
+    "developpement"
+  ]
+}

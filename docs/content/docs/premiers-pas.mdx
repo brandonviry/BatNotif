@@ -1,0 +1,48 @@
+---
+title: Premiers pas
+description: Découvre la pastille de BatNotif dans la zone de notification, ses couleurs, le clic gauche, le menu clic droit et le raccourci Ctrl+Alt+B.
+---
+
+Une fois lancé, BatNotif ne montre aucune fenêtre : il vit dans la **zone de notification** de Windows, à côté de l'horloge.
+
+## La pastille
+
+La pastille affiche le **niveau de batterie** et change de couleur selon l'état :
+
+| Couleur | Signification |
+|---|---|
+| 🟢 Vert | Tout va bien, la batterie est dans sa zone de confort. |
+| 🔴 Rouge | **Alerte basse** : branche le chargeur. |
+| 🟠 Ambre | **Alerte haute** : débranche le chargeur. |
+| ⚪ Gris | **Pause** : aucune alerte jusqu'à la fin de la pause. |
+| ⚫ « — » | Aucune batterie détectée (PC fixe). |
+
+Survole-la pour voir le détail, par exemple : `BatNotif — 74 % · branché · normal` ou `BatNotif — 82 % · branché · pause jusqu'à 15:30`.
+
+## Clics et raccourci
+
+- **Clic gauche** sur la pastille : affiche la fenêtre de réglages, ou la masque si elle est déjà ouverte.
+- **Clic droit** : menu **Ouvrir**, **Pause 15 min / Pause 1 h / Pause indéfinie** (ou **Reprendre** si une pause est en cours), **Quitter**.
+- <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>B</kbd> depuis n'importe quelle application : ouvre la fenêtre de réglages au premier plan. Pratique quand Windows 11 range l'icône dans le tiroir `^`.
+
+<Callout title="Fermer n'est pas quitter">
+  Fermer la fenêtre de réglages avec ✕ la masque seulement : BatNotif continue de surveiller la batterie. Pour l'arrêter vraiment, utilise **Quitter** dans le menu clic droit.
+</Callout>
+
+## La fenêtre de réglages
+
+Elle montre en un coup d'œil :
+
+- le **niveau** de batterie et une barre de progression ;
+- l'état du **secteur** (branché ou sur batterie) ;
+- l'**état courant** : Normal, Alerte basse, Alerte haute, Pause jusqu'à HH:MM, Pause indéfinie, Snooze jusqu'à HH:MM ou Aucune batterie détectée.
+
+En dessous, tu règles les seuils, les sons, le volume, la pause et le démarrage avec Windows. Tout est détaillé dans [Réglages](/docs/reglages).
+
+## Une seule instance
+
+Si tu lances BatNotif alors qu'il tourne déjà, aucune deuxième copie ne démarre : la fenêtre de l'instance existante s'affiche simplement.
+
+## Et ensuite ?
+
+Laisse BatNotif tourner. Il ne se manifeste que lorsque c'est utile : découvre [comment fonctionnent les alertes](/docs/alertes).

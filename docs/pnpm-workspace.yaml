@@ -1,0 +1,5 @@
+# Réglages pnpm du site de documentation.
+# Dépendances autorisées à exécuter leur script d'installation (binaires natifs).
+onlyBuiltDependencies:
+  - esbuild
+  - unrs-resolver

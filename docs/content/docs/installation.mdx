@@ -1,0 +1,64 @@
+---
+title: Télécharger et installer BatNotif
+description: Télécharge BatNotif pour Windows 10 et 11, choisis entre la version standard et la version compact, et lance-le sans installation ni droits administrateur.
+---
+
+BatNotif ne s'installe pas : c'est **un seul fichier `.exe`** que tu télécharges et que tu lances. Le runtime .NET est inclus, il n'y a rien d'autre à installer.
+
+## Configuration requise
+
+| | |
+|---|---|
+| Système | Windows 10 version 2004 (build 19041) ou plus récent, Windows 11 |
+| Processeur | x64 |
+| Matériel | Un PC **portable** (avec batterie). Sur un PC fixe, BatNotif indique « Aucune batterie détectée » et n'émet aucune alerte. |
+| Droits | Aucun droit administrateur |
+
+## Quelle version choisir ?
+
+Les deux fichiers sont **exactement le même programme**. Seule la façon dont il est emballé change :
+
+| Version | Taille du fichier | Mémoire quand il tourne | Pour qui |
+|---|---|---|---|
+| **Standard** (recommandée) | ≈ 160 Mo | ≈ 133 Mo | BatNotif tourne en permanence : c'est la plus économe en mémoire. |
+| **Compact** | ≈ 69 Mo | ≈ 194 Mo | Tu veux le plus petit fichier possible sur le disque. |
+
+Dans les deux cas, l'utilisation du processeur au repos est négligeable (≈ 0,004 % mesuré sur 10 minutes).
+
+<Callout title="Pourquoi la version compact consomme-t-elle plus de mémoire ?">
+  Elle est compressée : au lancement, Windows doit décompresser tout le programme en mémoire et l'y garder. La version standard est lue directement depuis le disque.
+</Callout>
+
+## Télécharger
+
+<Cards>
+  <Card title="BatNotif-standard.exe" href="https://github.com/brandonviry/BatNotif/releases/latest/download/BatNotif-standard.exe" description="≈ 160 Mo · recommandée" />
+  <Card title="BatNotif-compact.exe" href="https://github.com/brandonviry/BatNotif/releases/latest/download/BatNotif-compact.exe" description="≈ 69 Mo · plus petit fichier" />
+</Cards>
+
+Toutes les versions et leurs notes sont sur la [page des versions GitHub](https://github.com/brandonviry/BatNotif/releases). Le fichier `SHA256SUMS.txt` de chaque version permet de vérifier que le téléchargement n'a pas été altéré :
+
+```powershell
+Get-FileHash .\BatNotif-standard.exe -Algorithm SHA256
+```
+
+## Lancer BatNotif
+
+1. Place le fichier où tu veux (par exemple dans `Documents\BatNotif`).
+2. Double-clique dessus.
+3. Une **pastille** apparaît dans la zone de notification, à côté de l'horloge. Sur Windows 11, elle peut être rangée dans le tiroir `^`.
+
+<Callout type="warn" title="Avertissement Windows SmartScreen">
+  L'exécutable n'est pas signé numériquement. Au premier lancement, Windows peut afficher « Windows a protégé votre ordinateur ». Clique sur **Informations complémentaires** puis **Exécuter quand même**.
+</Callout>
+
+## Démarrer avec Windows
+
+Pour que BatNotif se lance tout seul à chaque ouverture de session, ouvre la fenêtre de réglages et coche **Démarrer avec Windows** puis **Enregistrer**. BatNotif s'inscrit alors dans `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`, sans droits administrateur. Si tu déplaces le fichier, relance-le une fois : il met le chemin à jour.
+
+## Désinstaller
+
+1. Clic droit sur la pastille → **Quitter**.
+2. Si tu avais coché « Démarrer avec Windows », décoche-le avant de quitter (ou supprime la valeur `BatNotif` de la clé ci-dessus).
+3. Supprime le fichier `.exe`.
+4. Facultatif : supprime le dossier `%AppData%\BatNotif` (réglages et journal).

@@ -7,6 +7,8 @@ Application Windows discrète qui tourne en arrière-plan et **protège la sant�
 
 L'alerte ne s'arrête pas tant que la situation n'est pas corrigée : notification maison persistante (toujours au premier plan, sans voler le focus, sauf en plein écran où elle interrompt la session) et son en boucle, avec **Snooze** et **Pause**, et des réglages persistants.
 
+📖 **Documentation : [batnotif.vercel.app](https://batnotif.vercel.app)** · ⬇️ **Téléchargement : [dernière version](https://github.com/brandonviry/BatNotif/releases/latest)**
+
 ---
 
 ## État d'avancement
@@ -130,6 +132,7 @@ Scénarios de validation complets : [`specs/001-batnotif-mvp/quickstart.md`](spe
 | `src/BatNotif.App/` | Application WPF : batterie Windows, notification, audio, tray, fenêtre |
 | `tests/BatNotif.Core.Tests/` | Tests xUnit du moteur et des réglages (temps simulé) |
 | `scripts/publish.ps1` | Publication de l'exe autonome dans `publish/` (ignoré par git) |
+| `docs/` | Site de documentation [Fumadocs](https://fumadocs.dev) (Next.js), déployé sur [batnotif.vercel.app](https://batnotif.vercel.app) par Vercel à chaque push sur `main` |
 | `specs/` | Spécifications, plans et tâches par feature (générés avec Spec Kit) |
 | `.specify/` | Infrastructure Spec Kit (constitution, templates, scripts) |
 | `.claude/skills/` | Commandes `/speckit-*` pour Claude Code |

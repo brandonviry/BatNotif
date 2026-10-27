@@ -1,0 +1,66 @@
+---
+title: Comment fonctionnent les alertes batterie
+description: Les règles exactes des alertes de BatNotif — batterie faible à 20 %, charge à 80 %, alerte continue, plein écran, démarrage, sortie de veille et chargeur trop faible.
+---
+
+BatNotif décide d'alerter en combinant **deux informations** : le niveau de batterie et la présence du secteur. Un simple seuil ne suffit pas : être à 82 % sur batterie est parfaitement normal, mais être à 82 % **branché** ne l'est pas.
+
+## Les deux alertes
+
+| Alerte | Se déclenche quand… | Message |
+|---|---|---|
+| **Basse** | tu es **sur batterie** et le niveau est **≤ seuil bas** (20 % par défaut) | « Batterie à 18 % — branche le chargeur » |
+| **Haute** | le chargeur est **branché** et le niveau est **≥ seuil haut** (80 % par défaut) | « Batterie à 82 % — débranche le chargeur » |
+
+Il n'y a jamais d'alerte quand le niveau est haut sur batterie, ni quand il est bas sur secteur avec une batterie qui charge.
+
+### Le cas du chargeur trop faible
+
+Si le chargeur est branché mais que la batterie **se vide quand même** (chargeur USB trop faible, adaptateur sous-dimensionné), BatNotif te considère comme « sur batterie » : l'alerte basse se déclenche normalement.
+
+## Une alerte continue
+
+Quand une alerte démarre :
+
+- une **notification** apparaît en haut à droite de l'écran sur lequel tu travailles, toujours au premier plan, **sans voler le focus** : tu peux continuer à taper ;
+- le **son** de l'alerte tourne **en boucle** ;
+- le niveau affiché se met à jour en direct.
+
+Il n'y a ni bouton « fermer », ni fermeture automatique : la notification et le son s'arrêtent **uniquement** quand tu corriges la situation, quand tu fais un [snooze ou une pause](/docs/snooze-pause).
+
+## Quand l'alerte s'arrête
+
+Pour éviter les alertes en boucle quand le niveau oscille autour d'un seuil (79 ↔ 80 %), BatNotif utilise une **marge de 2 %** :
+
+| Alerte | Se termine quand… |
+|---|---|
+| Basse | le niveau remonte à **seuil bas + 2 %** (22 % par défaut) **ou** tu branches un chargeur qui charge |
+| Haute | le niveau redescend à **seuil haut − 2 %** (78 % par défaut) **ou** tu débranches le chargeur |
+
+Après une alerte haute terminée à 78 %, il ne se passe rien tant que le niveau n'a pas de nouveau atteint 80 %.
+
+Les micro-coupures du secteur de moins de **2 secondes** sont ignorées. Un faux contact du câble ne déclenche ni n'arrête donc rien. En pratique, l'alerte disparaît en **10 secondes au plus** après que tu as branché ou débranché.
+
+## En plein écran : l'alerte renforcée
+
+En jeu ou en vidéo plein écran, une petite notification dans un coin passerait inaperçue. Quand une application plein écran est détectée, BatNotif :
+
+1. agrandit la notification (environ deux fois plus grande) et la **centre** sur l'écran ;
+2. la fait **passer devant** l'application, ce qui interrompt la session (un jeu en plein écran exclusif est réduit) ;
+3. continue de jouer le son en boucle.
+
+C'est volontaire : protéger la batterie passe avant la session en cours. Si tu retournes en plein écran sans brancher ni débrancher, l'alerte repasse devant. Pour jouer tranquille sans corriger la situation, utilise le [snooze ou la pause](/docs/snooze-pause).
+
+## Au démarrage et au réveil
+
+BatNotif évalue l'état **immédiatement** :
+
+- **au lancement** : branché à 90 %, l'alerte haute apparaît tout de suite ; sur batterie à 90 %, rien ne se passe ;
+- **à la sortie de veille ou d'hibernation** : si la batterie a changé pendant la veille, l'alerte apparaît en 10 secondes au plus.
+
+## Cas particuliers
+
+- **Batterie à 100 % branchée** : l'alerte haute continue, c'est précisément le cas à éviter.
+- **Aucune batterie** (PC fixe) : BatNotif l'indique et n'émet aucune alerte.
+- **Plusieurs écrans** : la notification apparaît sur l'écran qui contient la fenêtre active.
+- **Ne pas déranger / Focus Assist** : la notification s'affiche quand même (c'est une fenêtre de BatNotif, pas une notification Windows), mais le son reste soumis au volume et au mixeur de Windows.

@@ -1,0 +1,59 @@
+---
+title: FAQ et dépannage
+description: Réponses aux questions fréquentes sur BatNotif — SmartScreen, mémoire utilisée, son muet, PC fixe, données personnelles, désinstallation et raccourci Ctrl+Alt+B.
+---
+
+## BatNotif est-il gratuit ?
+
+Oui, entièrement gratuit, sans publicité ni compte. Le code source est public sur [GitHub](https://github.com/brandonviry/BatNotif).
+
+## Windows affiche « Windows a protégé votre ordinateur »
+
+C'est Windows SmartScreen : l'exécutable n'est pas signé numériquement. Clique sur **Informations complémentaires** puis **Exécuter quand même**. Tu peux vérifier l'intégrité du fichier avec `SHA256SUMS.txt`, voir [Installation](/docs/installation#télécharger).
+
+## BatNotif envoie-t-il des données ?
+
+Non. BatNotif ne se connecte à aucun réseau. Il lit l'état de la batterie fourni par Windows et écrit uniquement dans `%AppData%\BatNotif` (réglages et journal).
+
+## Pourquoi BatNotif utilise-t-il plus de 100 Mo de mémoire ?
+
+C'est le coût de base d'une application .NET / WPF autonome qui embarque son propre runtime : environ **133 Mo** pour la version standard et **194 Mo** pour la version compact (compressée, donc décompressée en mémoire au lancement). En revanche, le **processeur** au repos est quasiment à zéro (≈ 0,004 %), ce qui compte pour l'autonomie. Si la mémoire t'importe, prends la version standard.
+
+## Je n'entends pas l'alerte
+
+- Vérifie le **volume** dans la fenêtre de réglages et clique sur **▶ Tester**.
+- Vérifie que BatNotif n'est pas coupé dans le **mixeur de volume** de Windows.
+- Si un avertissement « son introuvable » apparaît, le fichier choisi a été déplacé : rechoisis-le, ou clique sur **Intégré**.
+- Une **pause** ou un **snooze** est peut-être en cours (pastille grise, état « Pause… » ou « Snooze… »).
+
+## La notification apparaît-elle avec « Ne pas déranger » ?
+
+Oui, la notification est une fenêtre de BatNotif, pas une notification Windows : elle s'affiche même avec Ne pas déranger / Focus Assist. Le son, lui, reste soumis au volume et au mixeur de Windows.
+
+## L'alerte m'a sorti de mon jeu
+
+C'est voulu : en plein écran, l'alerte est renforcée pour ne pas passer inaperçue. Pour jouer sans être interrompu, branche (ou débranche) le chargeur, ou mets BatNotif en **pause 1 h**. Voir [Snooze et pause](/docs/snooze-pause).
+
+## Je ne trouve pas l'icône
+
+Sur Windows 11, les nouvelles icônes sont rangées dans le tiroir `^` à côté de l'horloge. Appuie sur <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>B</kbd> pour ouvrir la fenêtre, ou fais glisser la pastille hors du tiroir pour la garder visible.
+
+## Le raccourci Ctrl+Alt+B ne fonctionne pas
+
+Une autre application l'utilise déjà. BatNotif te le signale dans la fenêtre de réglages ; utilise la pastille pour l'ouvrir.
+
+## J'ai un PC fixe
+
+BatNotif détecte qu'il n'y a pas de batterie, affiche « Aucune batterie détectée » et n'émet aucune alerte. Il n'a pas d'utilité sur un PC fixe.
+
+## Mes réglages ont été réinitialisés
+
+Le fichier `settings.json` était illisible (édité à la main, disque plein…). BatNotif l'a renommé en `settings.corrupt-<date>.json`, a repris les valeurs par défaut et te l'a signalé. Tu peux récupérer tes anciennes valeurs dans ce fichier.
+
+## Comment désinstaller BatNotif ?
+
+Décoche **Démarrer avec Windows**, quitte BatNotif (clic droit → **Quitter**), supprime le fichier `.exe` et, si tu veux, le dossier `%AppData%\BatNotif`. Voir [Installation](/docs/installation#désinstaller).
+
+## Où signaler un problème ?
+
+Ouvre un ticket sur [GitHub](https://github.com/brandonviry/BatNotif/issues) en joignant si possible le journal du jour : `%AppData%\BatNotif\logs\batnotif-AAAA-MM-JJ.log`.
