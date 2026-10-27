@@ -15,8 +15,9 @@ Le rappel se répète tant que la situation n'est pas corrigée, avec une notifi
 
 - [x] Idée et cahier des charges rédigés → [`idee.md`](idee.md)
 - [x] Spec Kit installé (développement piloté par les specs)
-- [x] Constitution du projet v1.0.0 → [`.specify/memory/constitution.md`](.specify/memory/constitution.md)
-- [ ] Spécification du MVP (`/speckit-specify` + `/speckit-clarify`)
+- [x] Constitution du projet v1.1.0 → [`.specify/memory/constitution.md`](.specify/memory/constitution.md)
+- [x] Spécification du MVP → [`specs/001-batnotif-mvp/spec.md`](specs/001-batnotif-mvp/spec.md)
+- [ ] Clarifications complémentaires (`/speckit-clarify`, optionnel)
 - [ ] Plan technique (`/speckit-plan`)
 - [ ] Tâches (`/speckit-tasks`)
 - [ ] Implémentation (`/speckit-implement`)
@@ -29,7 +30,8 @@ Le rappel se répète tant que la situation n'est pas corrigée, avec une notifi
 - Détection du niveau de batterie et du secteur (branché / débranché)
 - Seuils bas et haut réglables, avec hystérésis pour éviter les alertes en boucle
 - Notification visuelle personnalisée et son choisi pour chaque type d'alerte
-- Rappel répété toutes les N minutes, snooze, pause / reprise
+- Alerte continue (notification persistante + son en boucle) jusqu'à ce que tu branches / débranches, avec snooze 15 min et pause (15 min / 1 h / indéfinie)
+- En plein écran (jeu, vidéo), l'alerte est renforcée et interrompt la session
 - Réglages sauvegardés dans `%AppData%\BatNotif\settings.json`
 - Démarrage automatique avec Windows (option)
 

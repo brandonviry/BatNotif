@@ -1,6 +1,25 @@
 <!--
 Sync Impact Report
 ==================
+Version change: 1.0.0 → 1.1.0
+Bump rationale: MINOR — règles des principes I, II et III précisées suite aux décisions prises
+lors de la spec 001-batnotif-mvp (idee.md §11.3, §11.4, §11.6), sans suppression de principe.
+
+Modified principles :
+- I. Rappel actif : « rappel répété à l'intervalle configuré » → « alerte continue : notification
+  persistante + son en boucle jusqu'à correction, snooze ou pause »
+- II. Discrétion et non-intrusion : « ne jamais voler le focus » → « ne pas voler le focus, sauf
+  en plein écran où l'alerte est renforcée et interrompt la session »
+- III. L'utilisateur garde le contrôle : intervalle de rappel retiré des réglages ; état de snooze
+  ajouté à l'état lisible
+
+Added sections : aucune
+Removed sections : aucune
+Templates : aucun impact (plan/spec/tasks templates non modifiés).
+Deferred TODOs : aucun.
+
+--- Historique ---
+
 Version change: (template vierge) → 1.0.0
 Bump rationale: première ratification — remplacement complet du modèle par des principes concrets.
 
@@ -45,7 +64,8 @@ BatNotif existe pour **protéger la santé de la batterie**, pas pour afficher s
   malgré le chargeur) **et** `niveau ≤ seuil bas` ; alerte haute = sur secteur **et**
   `niveau ≥ seuil haut`.
 - Tant que la condition d'alerte est vraie et que l'utilisateur n'a pas mis en pause ou
-  en snooze, le rappel DOIT se répéter à l'intervalle configuré.
+  en snooze, l'alerte DOIT être **continue** : notification persistante et son en boucle,
+  sans limite de durée. Seuls la correction de la situation, le snooze et la pause l'arrêtent.
 - Une **hystérésis** DOIT empêcher les alertes en boucle autour d'un seuil
   (fin d'alerte à `seuil bas + 2` / `seuil haut − 2` par défaut).
 - Les changements d'état du secteur DOIVENT être filtrés (debounce d'environ 2 s) pour
@@ -60,17 +80,21 @@ La valeur du produit tient entièrement à un rappel fiable et insistant, sans f
 - L'application DOIT tourner en arrière-plan, avec une icône dans la zone de notification,
   sans impact perceptible sur les performances (CPU au repos négligeable, polling de
   secours espacé d'environ 5 s minimum).
-- La fenêtre de notification DOIT rester au premier plan **sans jamais voler le focus**.
+- La fenêtre de notification DOIT rester au premier plan **sans voler le focus**.
+  **Seule exception : quand une application est en plein écran** (jeu, vidéo), l'utilisateur ne voit rien
+  d'autre ; l'alerte DOIT alors être renforcée et interrompre la session (passer devant l'application, format
+  plus voyant, son), quitte à prendre le focus. Protéger la batterie prime sur la session en cours.
 - L'application NE DOIT JAMAIS demander d'élévation de privilèges (pas d'admin, pas de
   service Windows) : tout passe par l'espace utilisateur (`HKCU`, `%AppData%`).
 - Une **seule instance** DOIT pouvoir tourner (mutex nommé).
 - Fermer la fenêtre principale NE DOIT PAS quitter l'application : seul « Quitter » le fait.
 
-**Pourquoi** : un outil qui tourne en permanence n'est accepté que s'il ne gêne jamais.
+**Pourquoi** : un outil qui tourne en permanence n'est accepté que s'il ne gêne pas. Mais une alerte
+invisible ne sert à rien : en plein écran, la discrétion cède devant l'efficacité du rappel (principe I).
 
 ### III. L'utilisateur garde le contrôle
 
-- Les seuils, l'intervalle de rappel, le volume et le son de chaque type d'alerte DOIVENT
+- Les seuils, le volume et le son de chaque type d'alerte DOIVENT
   être réglables depuis l'interface, avec des contraintes validées
   (`seuil bas < seuil haut`, hystérésis cohérente).
 - Un bouton **Pause / Reprendre** DOIT être accessible dans la fenêtre et dans le menu
@@ -78,7 +102,7 @@ La valeur du produit tient entièrement à un rappel fiable et insistant, sans f
 - Les réglages DOIVENT être persistés dans `%AppData%\BatNotif\settings.json` et
   rechargés au démarrage ; un fichier absent ou corrompu DOIT entraîner un repli sur les
   valeurs par défaut, sans plantage.
-- L'état courant (niveau, secteur, état d'alerte ou de pause, prochain rappel) DOIT être
+- L'état courant (niveau, secteur, état d'alerte, de pause ou de snooze, et leur heure de fin) DOIT être
   lisible en un coup d'œil.
 
 **Pourquoi** : un rappel insistant n'est supportable que si l'utilisateur peut le régler
@@ -86,7 +110,7 @@ et le suspendre facilement.
 
 ### IV. Moteur testable, indépendant du matériel
 
-- La logique d'alerte (machine à états, hystérésis, répétition, pause, snooze) DOIT vivre
+- La logique d'alerte (machine à états, hystérésis, alerte continue, pause, snooze) DOIT vivre
   dans un composant **sans dépendance à WPF ni aux API Windows**, alimenté par une
   abstraction de la source batterie et de l'horloge.
 - Ce moteur DOIT être couvert par des **tests unitaires automatisés** sur batterie et
@@ -177,4 +201,4 @@ après coup, sans débogueur.
 - `CLAUDE.md` contient les consignes de travail au quotidien (logs, workflow, fichiers de
   référence).
 
-**Version**: 1.0.0 | **Ratified**: 2026-10-27 | **Last Amended**: 2026-10-27
+**Version**: 1.1.0 | **Ratified**: 2026-10-27 | **Last Amended**: 2026-10-27

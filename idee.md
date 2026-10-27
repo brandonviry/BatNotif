@@ -60,14 +60,13 @@ L'utilisateur garde le contrôle :
 | 5 | Seuil haut | Défaut **80 %**, réglable |
 | 6 | Notification visuelle custom | Fenêtre maison, coin haut-droit, toujours au premier plan, sans vol de focus |
 | 7 | Son personnalisable | Un fichier audio par type d'alerte (bas / haut) |
-| 8 | Répétition | Tant que la condition est vraie, rappel toutes les N minutes |
+| 8 | Alerte continue | Tant que la condition est vraie, la notification reste affichée et le son tourne en boucle (seuls correction, snooze ou pause l'arrêtent) |
 | 9 | Pause / Reprendre | Bouton dans l'app + entrée du menu tray |
 | 10 | Réglages persistants | Sauvegardés et rechargés au démarrage |
 
 ### 4.2 Confort
 
 - **Hystérésis** pour éviter les alertes en boucle quand le niveau oscille autour du seuil (ex. 79 ↔ 80 %).
-- **Intervalle de rappel réglable** (1 à 30 min).
 - **Volume** de la notification réglable, avec bouton **« Tester »**.
 - **Démarrage automatique avec Windows** (option).
 - **Snooze** dans la notification : « Rappelle-moi dans 15 min ».
@@ -103,7 +102,6 @@ L'utilisateur garde le contrôle :
 | `highThreshold` | 80 % | Déclenche l'alerte « débranche » |
 | `lowReset` | `lowThreshold + 2` | Fin d'alerte quand on remonte au-dessus |
 | `highReset` | `highThreshold - 2` | Fin d'alerte quand on redescend en dessous |
-| `repeatInterval` | 5 min | Délai entre deux rappels |
 | `pauseUntil` | — | Pause temporaire ou indéfinie |
 
 ### 5.3 États
@@ -111,8 +109,8 @@ L'utilisateur garde le contrôle :
 | État | Condition | Comportement |
 |---|---|---|
 | `NORMAL` | aucune condition d'alerte | silencieux |
-| `ALERTE_BASSE` | pas de secteur **et** `level ≤ lowThreshold` | notification + rappel répété |
-| `ALERTE_HAUTE` | secteur **et** `level ≥ highThreshold` | notification + rappel répété |
+| `ALERTE_BASSE` | pas de secteur **et** `level ≤ lowThreshold` | notification persistante + son en boucle |
+| `ALERTE_HAUTE` | secteur **et** `level ≥ highThreshold` | notification persistante + son en boucle |
 | `PAUSE` | l'utilisateur a mis en pause | silencieux, l'état réel est quand même suivi |
 
 ### 5.4 Transitions
@@ -130,9 +128,9 @@ L'utilisateur garde le contrôle :
 
 - **L'alerte est pilotée par `branché × niveau`, pas par un simple franchissement de seuil.** Être à 82 % débranché est normal ; être à 82 % branché ne l'est pas.
 - **Debounce sur le secteur** : Windows peut signaler des micro-coupures. Ignorer les changements de moins de ~2 s.
-- **Pas de notification au démarrage si l'état est déjà en zone d'alerte ?** → *à trancher* (voir §11).
+- **Au démarrage de l'app, l'état est évalué immédiatement** : si la condition d'alerte est vraie (ex. branché à 90 %), l'alerte part tout de suite ; sinon (ex. débranché à 90 %), rien. *(Décidé, §11.2.)*
 - **Après une reprise de veille**, on réévalue immédiatement : une alerte peut avoir été manquée.
-- **Répétition infinie par défaut**, conforme à la demande. Une option « s'arrêter après N rappels » peut exister mais reste désactivée.
+- **Alerte continue, sans limite** *(décidé, §11.3 et §11.4)* : tant que la condition est vraie, la notification reste affichée et le son tourne en boucle. Pas d'intervalle de rappel, pas de bouton « Vu », pas de fermeture automatique, pas d'option pour limiter. Seuls la correction (brancher / débrancher), le snooze et la pause l'arrêtent.
 - **La pause doit survivre à un redémarrage** de l'app (stockée avec un timestamp ou un flag « indéfinie »).
 
 ---
@@ -156,7 +154,6 @@ L'utilisateur garde le contrôle :
 │   Débrancher à [ 80 ] %   ↺                 │
 │   Son      [ full.mp3       ] [Choisir] ▶  │
 │                                             │
-│  Rappel toutes les [ 5 ] min                │
 │  Volume  [───────●────]  [Tester]           │
 │                                             │
 │  ☐ Démarrer avec Windows                    │
@@ -165,7 +162,7 @@ L'utilisateur garde le contrôle :
 └─────────────────────────────────────────────┘
 ```
 
-- L'état courant doit être **lisible en un coup d'œil** : niveau, secteur, état de veille, prochain rappel.
+- L'état courant doit être **lisible en un coup d'œil** : niveau, secteur, état (normal / alerte / pause / snooze), fin de pause ou de snooze.
 - Les seuils sont contraints : `lowThreshold < highThreshold`, avec un reset qui respecte l'hystérésis.
 - Bouton **Pause** bien visible, avec un choix de durée (15 min / 1 h / indéfiniment).
 
@@ -179,10 +176,10 @@ L'utilisateur garde le contrôle :
 
 - Petite fenêtre WPF **sans bordure**, coin **haut-droit de l'écran actif**.
 - **Toujours au premier plan**, **ne vole pas le focus**.
-- Contenu : icône + message clair (« Batterie à 82 % — débranche le chargeur ») + boutons `Vu` et `Snooze 15 min`.
+- Contenu : icône + message clair (« Batterie à 82 % — débranche le chargeur ») + bouton `Snooze 15 min` (pas de bouton pour simplement fermer).
 - Se ferme au clic ou après un délai.
-- **Le son est joué en même temps**, une fois par rappel (ou en boucle jusqu'à fermeture — option).
-- Ne pas apparaître **en plein écran / en jeu** si l'option « mode plein écran » est cochée.
+- **Le son démarre en même temps et tourne en boucle** tant que l'alerte est active ; la notification ne se ferme pas toute seule.
+- **En plein écran / en jeu, l'alerte est renforcée, pas masquée** : l'utilisateur est entièrement absorbé et ne voit rien d'autre, donc la notification doit **interrompre la session** (passer devant l'application plein écran, en plus grand, avec le son) pour être impossible à rater. C'est la seule situation où la notification a le droit de prendre le focus. *(Décidé, §11.6.)*
 
 ---
 
@@ -192,14 +189,12 @@ L'utilisateur garde le contrôle :
 {
   "lowThreshold": 20,
   "highThreshold": 80,
-  "repeatIntervalMinutes": 5,
   "lowSoundPath": "%USERPROFILE%\\Music\\low.mp3",
   "highSoundPath": "%USERPROFILE%\\Music\\full.mp3",
   "volume": 0.8,
   "startWithWindows": true,
   "pausedUntil": null,
-  "pauseIndefinite": false,
-  "silentInFullscreen": true
+  "pauseIndefinite": false
 }
 ```
 
@@ -253,7 +248,7 @@ Un projet `BatterieEtat` existe déjà sur la machine :
 |---|---|---|
 | Notification | toast Windows | fenêtre custom + musique |
 | Son | fichiers fixes | **choisi par l'utilisateur, par type** |
-| Répétition | à confirmer | **rappel répété explicite** |
+| Répétition | à confirmer | **alerte continue (son en boucle) jusqu'à correction** |
 | Pause | à confirmer | **exigée** |
 
 → Décision à prendre : **repartir de zéro** dans `D:\bat_notif` (plus propre, l'idée est plus riche) ou **forker / faire évoluer** `BatterieEtat`. Le squelette batterie + tray est de toute façon réutilisable.
@@ -263,11 +258,11 @@ Un projet `BatterieEtat` existe déjà sur la machine :
 ## 11. Décisions à trancher
 
 1. **Nom définitif** : BatNotif, BatteryGuard, ChargeGuard, autre ?
-2. **Notification au démarrage** si déjà en zone d'alerte : silencieuse ou immédiate ?
-3. **Répétition** : infinie par défaut, ou plafonnée avec un mode « insistant » activable ?
-4. **Son** : joué une fois par rappel, ou en boucle jusqu'à interaction ?
+2. ~~**Notification au démarrage** si déjà en zone d'alerte : silencieuse ou immédiate ?~~ → **Décidé : immédiate**, selon la règle normale secteur × niveau (branché à 90 % → alerte ; débranché à 90 % → rien).
+3. ~~**Répétition** : infinie par défaut, ou plafonnée avec un mode « insistant » activable ?~~ → **Décidé : infinie, non plafonnable.**
+4. ~~**Son** : joué une fois par rappel, ou en boucle jusqu'à interaction ?~~ → **Décidé : en boucle continue jusqu'à correction** (snooze et pause seuls le coupent temporairement). Plus d'intervalle de rappel ni de bouton « Vu ».
 5. **Pause** : bouton unique ou choix de durée (15 min / 1 h / indéfiniment) ?
-6. **Mode plein écran / jeu** : masquer la notification ou l'afficher quand même ?
+6. ~~**Mode plein écran / jeu** : masquer la notification ou l'afficher quand même ?~~ → **Décidé : l'alerte est renforcée et interrompt la session** (passe devant le jeu, plus grande, avec son). L'option « silencieux en plein écran » est supprimée.
 7. **Multi-utilisateurs / multi-batteries** : hors périmètre ?
 8. **Distribution** : `.exe` single-file auto-suffisant, ou installeur (MSI / Inno Setup) ?
 
@@ -278,10 +273,10 @@ Un projet `BatterieEtat` existe déjà sur la machine :
 | Étape | Contenu | Critère de fin |
 |---|---|---|
 | **1. Squelette** | Projet WPF, tray, mutex, lecture batterie + secteur, fenêtre minimale | L'état batterie s'affiche en temps réel |
-| **2. Moteur** | Machine à états, hystérésis, répétition, pause | Alertes correctes sur batterie simulée |
+| **2. Moteur** | Machine à états, hystérésis, alerte continue, snooze, pause | Alertes correctes sur batterie simulée |
 | **3. Notification** | Fenêtre custom, son, snooze, position multi-écran | Alerte visible et audible, sans vol de focus |
 | **4. Réglages** | GUI complète, persistance JSON, autostart, test audio | Tout survit à un redémarrage |
-| **5. Finition** | Mode plein écran, icône d'état, packaging single-file, tests veille | `exe` autonome prêt à l'emploi |
+| **5. Finition** | Alerte renforcée en plein écran, icône d'état, packaging single-file, tests veille | `exe` autonome prêt à l'emploi |
 
 ---
 
