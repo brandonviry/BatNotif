@@ -32,8 +32,9 @@ Zones, de haut en bas :
 1. **État** : niveau (%) + barre, secteur (branché / sur batterie), état courant
    (`Normal`, `Alerte basse`, `Alerte haute`, `Pause jusqu'à HH:MM`, `Pause indéfinie`, `Snooze jusqu'à HH:MM`,
    `Aucune batterie détectée`).
-2. **Alerte basse** : champ « Brancher à [__] % » + bouton ↺ (défaut 20), son (chemin) + « Choisir… » + ▶ Tester.
-3. **Alerte haute** : champ « Débrancher à [__] % » + bouton ↺ (défaut 80), son + « Choisir… » + ▶ Tester.
+2. **Alerte basse** : champ « Brancher à [__] % » + bouton ↺ (défaut 20), son (nom du fichier ou « Son intégré »)
+   + « Choisir… » + « Intégré » (revenir au son par défaut) + ▶ Tester.
+3. **Alerte haute** : champ « Débrancher à [__] % » + bouton ↺ (défaut 80), son + « Choisir… » + « Intégré » + ▶ Tester.
 4. **Volume** : curseur 0–100 %.
 5. **Démarrer avec Windows** : case à cocher.
 6. **Actions** : bouton Pause (choix 15 min / 1 h / indéfiniment) ou Reprendre, bouton Enregistrer.

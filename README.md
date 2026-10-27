@@ -11,7 +11,7 @@ L'alerte ne s'arrête pas tant que la situation n'est pas corrigée : notificati
 
 ## État d'avancement
 
-🟡 **Implémentation en cours** : jalon interne US1 atteint côté code (33 tâches sur 65). Les alertes continues fonctionnent avec les seuils par défaut (20 % / 80 %), y compris l'alerte renforcée en plein écran ; validation manuelle en cours. Pas encore de fenêtre de réglages ni de pause : l'app n'est pas encore distribuable.
+🟡 **Implémentation en cours** (45 tâches sur 65) : alertes continues (y compris l'alerte renforcée en plein écran) et fenêtre de réglages (seuils, sons, volume, démarrage avec Windows) enregistrés dans `%AppData%\BatNotif\settings.json`, validées manuellement. Pas encore de snooze ni de pause : l'app n'est pas encore distribuable.
 
 - [x] Idée et cahier des charges rédigés → [`idee.md`](idee.md)
 - [x] Spec Kit installé (développement piloté par les specs)
@@ -21,8 +21,9 @@ L'alerte ne s'arrête pas tant que la situation n'est pas corrigée : notificati
 - [x] Tâches → [`specs/001-batnotif-mvp/tasks.md`](specs/001-batnotif-mvp/tasks.md) (65 tâches)
 - [ ] Implémentation (`/speckit-implement`)
   - [x] Phases 1–2 : solution, projets, types du moteur, journal, source batterie, instance unique
-  - [ ] US1 : alertes continues (jalon interne) — code fait, validation manuelle en cours
-  - [ ] US2 : réglages · US3 : snooze / pause → première version livrable
+  - [x] US1 : alertes continues (jalon interne) — validée manuellement (M1, M2, M3, M7, M8, M15)
+  - [x] US2 : réglages — validée manuellement (M9, M10, M11, M12, M16, SC-005)
+  - [ ] US3 : snooze / pause → première version livrable
   - [ ] US4 : tray complet, raccourci · Finition : exe autonome
 
 ---
@@ -67,7 +68,7 @@ dotnet build BatNotif.sln      # compile les 3 projets
 dotnet test BatNotif.sln       # lance les tests du moteur
 ```
 
-Lancer l'application (une icône verte « B » apparaît dans la zone de notification ; clic droit → **Quitter**) :
+Lancer l'application (une icône verte « B » apparaît dans la zone de notification ; clic droit → **Ouvrir** pour les réglages, **Quitter** pour arrêter) :
 
 ```powershell
 dotnet run --project src/BatNotif.App

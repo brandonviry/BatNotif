@@ -63,6 +63,24 @@ public sealed class AlertEngine : IDisposable
         Recompute();
     });
 
+    /// <summary>Applique de nouveaux seuils (validés en amont) et réévalue immédiatement (US2).</summary>
+    public void UpdateThresholds(int lowThreshold, int highThreshold) => Guard(() =>
+    {
+        lock (_gate)
+        {
+            if (lowThreshold == _low && highThreshold == _high)
+            {
+                return;
+            }
+
+            _low = lowThreshold;
+            _high = highThreshold;
+            _log.Write(_time, LogEventKind.Info, $"Nouveaux seuils appliqués : {_low} % / {_high} %");
+        }
+
+        Recompute();
+    });
+
     public void Dispose()
     {
         lock (_gate)

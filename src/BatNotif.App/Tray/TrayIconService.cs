@@ -8,19 +8,23 @@ using H.NotifyIcon;
 namespace BatNotif.App.Tray;
 
 /// <summary>
-/// Icône de zone de notification. Version minimale (US1) : icône statique générée par le code
-/// et une seule entrée de menu « Quitter ». Complétée en US2 à US4.
+/// Icône de zone de notification. Icône statique générée par le code ; menu Ouvrir / Quitter.
+/// Complétée en US3 (pause) et US4 (icônes d'état, clic gauche).
 /// </summary>
 public sealed class TrayIconService : IDisposable
 {
     private readonly TaskbarIcon _icon;
     private readonly Icon _image;
 
-    public TrayIconService(Action quit)
+    public TrayIconService(Action open, Action quit)
     {
         _image = CreateIcon();
 
         var menu = new ContextMenu();
+        var openItem = new MenuItem { Header = "Ouvrir", FontWeight = System.Windows.FontWeights.SemiBold };
+        openItem.Click += (_, _) => open();
+        menu.Items.Add(openItem);
+        menu.Items.Add(new Separator());
         var quitItem = new MenuItem { Header = "Quitter" };
         quitItem.Click += (_, _) => quit();
         menu.Items.Add(quitItem);

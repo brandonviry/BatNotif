@@ -7,6 +7,8 @@ using BatNotif.App.Logging;
 using BatNotif.App.Platform;
 using BatNotif.App.Presentation;
 using BatNotif.App.Tray;
+using BatNotif.App.ViewModels;
+using BatNotif.App.Views;
 using BatNotif.Core.Alerts;
 using BatNotif.Core.Logging;
 using BatNotif.Core.Settings;
@@ -26,6 +28,15 @@ public partial class App : Application
     private AlertPresenter? _presenter;
     private SleepResumeWatcher? _sleep;
     private TrayIconService? _tray;
+    private SettingsStore? _settingsStore;
+    private MainWindow? _mainWindow;
+
+    /// <summary>Chemin des réglages : <c>%AppData%\BatNotif\settings.json</c> (contracts/settings-schema.md).</summary>
+    public static string SettingsPath { get; } = System.IO.Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BatNotif", "settings.json");
+
+    /// <summary>Réglages actuellement appliqués (remplacés à chaque enregistrement).</summary>
+    public AppSettings CurrentSettings { get; private set; } = AppSettings.Default;
 
     /// <summary>Journal de l'application, disponible dès le début de <see cref="OnStartup"/>.</summary>
     public static IEventLog Log { get; private set; } = new FileEventLog();
@@ -55,15 +66,27 @@ public partial class App : Application
 
         Log.Write(Time, LogEventKind.AppStart, $"BatNotif {typeof(App).Assembly.GetName().Version} démarré");
 
-        // Tant que la fenêtre principale n'existe pas (US2), une demande d'activation est seulement journalisée.
-        _singleInstance.ActivationRequested += (_, _) =>
-            Log.Write(Time, LogEventKind.Info, "Second lancement détecté : activation demandée");
-
         StartMonitoring(e.Args);
+
+        // Un second lancement affiche la fenêtre de l'instance existante (FR-032).
+        _singleInstance.ActivationRequested += (_, _) =>
+        {
+            Log.Write(Time, LogEventKind.Info, "Second lancement détecté : affichage de la fenêtre principale");
+            Dispatcher.BeginInvoke(ShowMainWindow);
+        };
     }
+
+    /// <summary>Affiche la fenêtre principale au premier plan (menu « Ouvrir », second lancement).</summary>
+    public void ShowMainWindow() => _mainWindow?.ShowAndActivate();
 
     protected override void OnExit(ExitEventArgs e)
     {
+        if (_mainWindow is not null)
+        {
+            _mainWindow.AllowClose = true;
+            _mainWindow.Close();
+        }
+
         _presenter?.Dispose();
         _engine?.Dispose();
         _sleep?.Dispose();
@@ -82,10 +105,16 @@ public partial class App : Application
         CriticalErrorReported?.Invoke(null, userMessage);
     }
 
-    /// <summary>Câble source batterie, moteur, audio, notification, veille et tray, puis évalue immédiatement.</summary>
+    /// <summary>
+    /// Charge les réglages, câble source batterie, moteur, audio, notification, veille, fenêtre et tray,
+    /// puis évalue immédiatement.
+    /// </summary>
     private void StartMonitoring(string[] args)
     {
-        var settings = AppSettings.Default;
+        _settingsStore = new SettingsStore(SettingsPath, Log, Time);
+        var loaded = _settingsStore.Load();
+        CurrentSettings = loaded.Settings;
+        var settings = CurrentSettings;
         var low = settings.LowThreshold;
         var high = settings.HighThreshold;
 #if DEBUG
@@ -104,7 +133,7 @@ public partial class App : Application
         _presenter = new AlertPresenter(
             _engine,
             _player,
-            sound => sound == AlertSound.Low ? settings.LowSoundPath : settings.HighSoundPath,
+            sound => sound == AlertSound.Low ? CurrentSettings.LowSoundPath : CurrentSettings.HighSoundPath,
             Log,
             Time,
             Dispatcher);
@@ -114,7 +143,19 @@ public partial class App : Application
             Log.Write(Time, LogEventKind.Info, $"Sortie de veille détectée ({source})");
             _engine.NotifyResumedFromSleep();
         };
-        _tray = new TrayIconService(quit: () => Shutdown(0));
+
+        // Le registre suit les réglages (met aussi à jour le chemin si l'exe a été déplacé).
+        var autostart = new AutostartRegistry(Log, Time);
+        autostart.Apply(settings.StartWithWindows);
+
+        var viewModel = new MainViewModel(
+            _engine, _settingsStore, _player, autostart, settings, loaded.Warnings, PickSoundFile, Dispatcher);
+        viewModel.SettingsSaved += (_, saved) => CurrentSettings = saved;
+        _player.SoundFallback += (_, message) => viewModel.AddWarning(message);
+        CriticalErrorReported += (_, message) => viewModel.AddWarning(message);
+        _mainWindow = new MainWindow(viewModel); // Créée masquée ; affichée par « Ouvrir ».
+
+        _tray = new TrayIconService(open: ShowMainWindow, quit: () => Shutdown(0));
 
         // Évaluation immédiate au démarrage (FR-004).
         _engine.Evaluate();
@@ -146,7 +187,7 @@ public partial class App : Application
             }
         }
 
-        if (low != AppSettings.Default.LowThreshold || high != AppSettings.Default.HighThreshold)
+        if (args.Contains("--low") || args.Contains("--high"))
         {
             Log.Write(Time, LogEventKind.Info, $"[Debug] Seuils remplacés pour cette session : bas {low} %, haut {high} % (non enregistrés)");
         }
@@ -154,6 +195,18 @@ public partial class App : Application
         return (low, high);
     }
 #endif
+
+    /// <summary>Sélecteur de fichier audio (FR-017) ; null si l'utilisateur annule.</summary>
+    private string? PickSoundFile()
+    {
+        var dialog = new Microsoft.Win32.OpenFileDialog
+        {
+            Title = "Choisir un son d'alerte",
+            Filter = "Fichiers audio (*.mp3;*.wav)|*.mp3;*.wav",
+            CheckFileExists = true,
+        };
+        return dialog.ShowDialog(_mainWindow) == true ? dialog.FileName : null;
+    }
 
     private void RegisterGlobalExceptionHandlers()
     {

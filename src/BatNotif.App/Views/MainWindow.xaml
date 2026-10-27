@@ -1,0 +1,168 @@
+<Window x:Class="BatNotif.App.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:BatNotif.App.ViewModels"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance vm:MainViewModel}"
+        Title="BatNotif"
+        Width="500" SizeToContent="Height"
+        ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen"
+        Background="#F7F7F9"
+        FontFamily="Segoe UI Variable Text, Segoe UI" FontSize="14">
+
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+
+        <Style x:Key="SectionTitle" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Segoe UI Variable Display, Segoe UI" />
+            <Setter Property="FontSize" Value="15" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="#1B1B1F" />
+            <Setter Property="Margin" Value="0,0,0,8" />
+        </Style>
+
+        <Style x:Key="Card" TargetType="Border">
+            <Setter Property="Background" Value="White" />
+            <Setter Property="BorderBrush" Value="#E3E3E8" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Padding" Value="16,12" />
+            <Setter Property="Margin" Value="0,0,0,12" />
+        </Style>
+
+        <Style TargetType="Button">
+            <Setter Property="Padding" Value="10,4" />
+            <Setter Property="Margin" Value="6,0,0,0" />
+            <Setter Property="MinWidth" Value="32" />
+        </Style>
+
+        <Style x:Key="ThresholdBox" TargetType="TextBox">
+            <Setter Property="Width" Value="52" />
+            <Setter Property="Padding" Value="4,2" />
+            <Setter Property="TextAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+    </Window.Resources>
+
+    <StackPanel Margin="20">
+
+        <!-- 1. État (FR-033) -->
+        <Border Style="{StaticResource Card}">
+            <StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="{Binding LevelText}" FontFamily="Segoe UI Variable Display, Segoe UI"
+                               FontSize="30" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="1" Text="{Binding AcText}" Foreground="#5A5A66"
+                               Margin="12,0,0,0" VerticalAlignment="Center" />
+                    <Border Grid.Column="2" Background="#EEF0F4" CornerRadius="10" Padding="10,3" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding StateText}" FontWeight="SemiBold" Foreground="#30303A" />
+                    </Border>
+                </Grid>
+                <ProgressBar Value="{Binding Level, Mode=OneWay}" Maximum="100" Height="6" Margin="0,10,0,0"
+                             Foreground="#2E9E5B" Background="#E3E3E8" BorderThickness="0" />
+            </StackPanel>
+        </Border>
+
+        <!-- 2. Alerte basse -->
+        <Border Style="{StaticResource Card}">
+            <StackPanel>
+                <TextBlock Text="Alerte batterie basse" Style="{StaticResource SectionTitle}" />
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Brancher à" VerticalAlignment="Center" Width="96" />
+                    <TextBox Text="{Binding LowThresholdText, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ThresholdBox}"
+                             AutomationProperties.Name="Seuil bas en pourcentage" />
+                    <TextBlock Text="%" VerticalAlignment="Center" Margin="6,0,0,0" />
+                    <Button Content="↺" Command="{Binding ResetLowCommand}" ToolTip="Revenir à 20 %" />
+                </StackPanel>
+                <DockPanel Margin="0,10,0,0">
+                    <TextBlock Text="Son" VerticalAlignment="Center" Width="96" />
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                        <Button Content="Choisir…" Command="{Binding ChooseLowSoundCommand}" />
+                        <Button Content="Intégré" Command="{Binding UseBuiltInLowSoundCommand}" ToolTip="Utiliser le son intégré" />
+                        <Button Content="▶ Tester" Command="{Binding TestLowSoundCommand}" />
+                    </StackPanel>
+                    <TextBlock Text="{Binding LowSoundLabel}" ToolTip="{Binding LowSoundPath}" VerticalAlignment="Center"
+                               TextTrimming="CharacterEllipsis" Foreground="#30303A" />
+                </DockPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- 3. Alerte haute -->
+        <Border Style="{StaticResource Card}">
+            <StackPanel>
+                <TextBlock Text="Alerte batterie haute" Style="{StaticResource SectionTitle}" />
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Débrancher à" VerticalAlignment="Center" Width="96" />
+                    <TextBox Text="{Binding HighThresholdText, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ThresholdBox}"
+                             AutomationProperties.Name="Seuil haut en pourcentage" />
+                    <TextBlock Text="%" VerticalAlignment="Center" Margin="6,0,0,0" />
+                    <Button Content="↺" Command="{Binding ResetHighCommand}" ToolTip="Revenir à 80 %" />
+                </StackPanel>
+                <DockPanel Margin="0,10,0,0">
+                    <TextBlock Text="Son" VerticalAlignment="Center" Width="96" />
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                        <Button Content="Choisir…" Command="{Binding ChooseHighSoundCommand}" />
+                        <Button Content="Intégré" Command="{Binding UseBuiltInHighSoundCommand}" ToolTip="Utiliser le son intégré" />
+                        <Button Content="▶ Tester" Command="{Binding TestHighSoundCommand}" />
+                    </StackPanel>
+                    <TextBlock Text="{Binding HighSoundLabel}" ToolTip="{Binding HighSoundPath}" VerticalAlignment="Center"
+                               TextTrimming="CharacterEllipsis" Foreground="#30303A" />
+                </DockPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- 4. Volume et 5. Démarrage -->
+        <Border Style="{StaticResource Card}">
+            <StackPanel>
+                <DockPanel>
+                    <TextBlock Text="Volume" VerticalAlignment="Center" Width="96" />
+                    <TextBlock DockPanel.Dock="Right" Text="{Binding VolumeText}" Width="44" TextAlignment="Right" VerticalAlignment="Center" />
+                    <Slider Value="{Binding VolumePercent}" Minimum="0" Maximum="100" IsSnapToTickEnabled="True" TickFrequency="1"
+                            VerticalAlignment="Center" AutomationProperties.Name="Volume des alertes" />
+                </DockPanel>
+                <CheckBox Content="Démarrer avec Windows" IsChecked="{Binding StartWithWindows}" Margin="0,12,0,0" />
+            </StackPanel>
+        </Border>
+
+        <!-- 7. Avertissements -->
+        <Border Background="#FFF6E5" BorderBrush="#F5C26B" BorderThickness="1" CornerRadius="8" Padding="12,8" Margin="0,0,0,12"
+                Visibility="{Binding HasWarnings, Converter={StaticResource BoolToVisibility}}">
+            <DockPanel>
+                <Button DockPanel.Dock="Right" Content="✕" Command="{Binding DismissWarningsCommand}" ToolTip="Masquer les avertissements"
+                        VerticalAlignment="Top" Background="Transparent" BorderThickness="0" />
+                <ItemsControl ItemsSource="{Binding Warnings}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding StringFormat='⚠ {0}'}" TextWrapping="Wrap" Foreground="#6B4500" Margin="0,2" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </DockPanel>
+        </Border>
+
+        <!-- 6. Actions + retour de validation -->
+        <TextBlock Text="{Binding ValidationMessage}" Foreground="#C42B1C" TextWrapping="Wrap" Margin="0,0,0,8">
+            <TextBlock.Style>
+                <Style TargetType="TextBlock">
+                    <Style.Triggers>
+                        <Trigger Property="Text" Value="">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBlock.Style>
+        </TextBlock>
+        <DockPanel>
+            <Button DockPanel.Dock="Right" Content="Enregistrer" Command="{Binding SaveCommand}" IsDefault="True"
+                    Padding="18,6" FontWeight="SemiBold" />
+            <TextBlock Text="{Binding StatusMessage}" Foreground="#1E7A45" VerticalAlignment="Center" />
+        </DockPanel>
+    </StackPanel>
+</Window>
