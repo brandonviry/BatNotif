@@ -1,0 +1,16 @@
+# .NET build output
+bin/
+obj/
+publish/
+*.user
+*.suo
+.vs/
+TestResults/
+
+# Claude Code local files (spec-kit skills in .claude/skills stay versioned)
+.claude/settings.local.json
+.claude/*.local.*
+
+# OS
+Thumbs.db
+desktop.ini
